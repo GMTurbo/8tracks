@@ -1,0 +1,15 @@
+.title{
+  font-size: 14pt;
+  font-family: Arial;
+  padding: 2pt;
+}
+img {
+  padding: 2pt;
+  float: left;
+  //display: block;
+}
+.second {
+  font-family: Helvetica;
+  color: #808080;
+  font-size: 11pt;
+}

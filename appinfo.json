@@ -1,0 +1,13 @@
+{
+	"id": "com.mycompany.8tracks",
+	"version": "1.4.1",
+	"vendor": "Gabe Testa",
+	"type": "web",
+	"main": "index.html",
+	"title": "8tracks",
+	"icon": "icon.jpg",
+	"splashBackground": "images/trans-blue.png",
+	"keywords":["music","eight"],
+	"miniicon": "images/mini_icon.png",
+	"theme": "palm-dark"
+}

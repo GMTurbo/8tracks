@@ -1,0 +1,56 @@
+/* Copyright 2009 Palm, Inc.  All rights reserved. */
+
+.palm-dashboard-controls-container {
+    position: absolute;
+    right: 0;
+    z-index: 1;
+}
+
+.control-button {
+	width: 48px;
+	height: 48px;
+	float: right;
+    background: url(../images/dashboard/dashboard_buttons.png) top left no-repeat;
+}
+.like-button.like {
+	width: 56px;
+	height: 56px;
+	float: right;
+	background: url(../images/unlikedstar.png) center center no-repeat;
+}
+.like-button.unlike {
+	width: 56px;
+	height: 56px;
+	float: right;
+	background: url(../images/likedstar.png) center center no-repeat;
+}
+.control-button.selected { background-position-y: -48px; }
+
+.control-button.pause { background-position-x: -48px; }
+.control-button.next { background-position-x: -96px; }
+.control-button.previous { background-position-x: -142px; }
+
+.dashboard-notification-module .album-art {
+	position: absolute;
+	right: -8px;
+	top: 3px;
+	-webkit-transform: rotate(-3deg);
+	width: 185px;
+	height: 50px;
+}
+
+.dashboard-notification-module .album-art-overlay {
+	position: absolute;
+	right: 0px;
+    top: -2px;
+	width: 185px;
+	height: 51px;
+	background: url(../images/dashboard/album-art-overlay.png) center center no-repeat;
+}
+
+.palm-dashboard-text,
+.dashboard-title {
+    z-index: 1;
+    position: relative;
+    margin-right: 168px;
+}
