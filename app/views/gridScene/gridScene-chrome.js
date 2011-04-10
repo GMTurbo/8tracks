@@ -72,17 +72,17 @@ opus.Gizmo({
 					],
 					useSampleData: false,
 					title: undefined,
-					itemHtml: "<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\"> \n  <div class=\"title\"><img src=\"#{leftImage}\" align=\"left\">&nbsp;<font face=\"Arial\">#{title}</font><tag=\"tag\"><br><small><font face=\"helvetica\" color=\"#808080\">&nbsp;#{tag}</font></small></br><mixInfo=\"mixInfo\"><set_id=\"set_id\"></div>  \n</div>  \n",
+					itemHtml: "\n<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\" style=\"padding:1px;\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <set_id=\"set_id\">\n    <tag=\"tag\">\n    <table style=\"padding:1pt;vertical-align:top;\">\n    <tr>\n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\"></th>\n      <th id=\"col2\">\n        <dt id=\"titleText\"> #{title} </dt>\n        <dt id=\"tagText\"> #{tag} </dt>\n      </th>\n    </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
 					onlisttap: "list1Listtap",
 					swipeToDelete: false,
 					reorderable: false,
 					type: "Palm.Mojo.List",
 					l: 0,
 					t: 0,
-					h: 108,
+					h: 212,
 					vAlign: "center",
 					styles: {
-						textColor: "white"
+						textColor: "black"
 					}
 				}
 			]

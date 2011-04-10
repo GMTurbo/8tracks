@@ -47,22 +47,10 @@ function GridSceneAssistant(argFromPusher, pagecount, setid, loggedin, username,
 		}
 		var list = new Array(tracks.length);
 		for (var i = 0; i < tracks.length; i++) {
-			var name = tracks[i].name;
-			var tag = tracks[i].tag_list_cache;
-			if (name !== null) {
-				if (name.length > 30) {
-					name = name.substring(0, 30) + "...";
-				}
-			}
-			if (tag !== null) {
-				if (tag.length > 30) {
-					tag = tag.substring(0, 30) + "...";
-				}
-			}
 			list[i] = {
-				title: name,
+				title: tracks[i].name,
 				leftImage: tracks[i].cover_urls.sq56.toString() === "/images/mix_covers/sq56.gif" ? Mojo.appPath + "/images/no_image.png" : tracks[i].cover_urls.sq56,
-				tag: tag,
+				tag: tracks[i].tag_list_cache,
 				mixInfo: tracks[i],
 				set_id: this.setid,
 				type: "mix"
@@ -77,6 +65,7 @@ function GridSceneAssistant(argFromPusher, pagecount, setid, loggedin, username,
 			}
 		};
 	};
+
 	this.fillUserList = function(users) {
 		var list = new Array(users.length);
 		for (var i = 0; i < users.length; i++) {
@@ -85,9 +74,6 @@ function GridSceneAssistant(argFromPusher, pagecount, setid, loggedin, username,
 				if (users[i].bio_html.indexOf("<p>") >= 0) {
 					bio = users[i].bio_html.split("<p>")[1];
 					bio = bio.split("</p>")[0];
-					if (bio.length > 50) {
-						bio = bio.substring(0, 50) + "...";
-					}
 				}
 			}
 			list[i] = {
@@ -97,7 +83,6 @@ function GridSceneAssistant(argFromPusher, pagecount, setid, loggedin, username,
 				mixID: users[i].id,
 				type: "user",
 				userinfo: users[i]
-				//set_id: this.setid
 			};
 		}
 		listModel = {
@@ -153,7 +138,7 @@ GridSceneAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-					                {
+					                    {
 					label: "8tracks",
 					width: 320
 				}]
@@ -168,7 +153,7 @@ GridSceneAssistant.prototype = {
 		this.cookie2 = new Mojo.Model.Cookie("prefs");
 		var thm = "none";
 		if (this.cookie2.get()) {
-			thm = this.cookie2.get().theme
+			thm = this.cookie2.get().theme;
 		}
 
 		this.appMenuModel = {
@@ -237,6 +222,33 @@ GridSceneAssistant.prototype = {
 				textColor: props.textColor
 			});
 		}
+		// JUST TYPE HANDLING
+		if (justTypeInstance !== 0) {
+			if (!mixLookup(justTypeInstance.criteria().mixType)) {
+				// if the mixType doesn't exist, then go straight to searchin'
+				search = justTypeInstance.criteria().mixType;
+				justTypeInstance = 0; // we're done with it so get rid of it
+				this.controller.stageController.pushScene('searchScrene', search, this.userid); // search
+			} else {
+				// the user wants to search a specific mix type, so let's do that
+				this.autoOpenCriteria = justTypeInstance.criteria().searchTerm;
+				mixtype = justTypeInstance.criteria().mixType;
+				var listChange = true;
+				if ((mixtype === "liked" && !this.loggedin) || (mixtype === "following" && !this.loggedin) || (mixtype === "my mixes" && !this.loggedin)) {
+					capitaliseFirstLetter = function(string) {
+						return string.charAt(0).toUpperCase() + string.slice(1);
+					};
+					this.showBanner(mixtype.indexOf("mixes") === -1 ? "login required to view " + capitaliseFirstLetter(mixtype) + " mixes" : "login required to view " + capitaliseFirstLetter(mixtype.split(" ")[0]) + " " + capitaliseFirstLetter(mixtype.split(" ")[1]));
+					mixtype = "latest";
+					listChange = false;
+				}
+				justTypeInstance = 0;
+				if (listChange) {
+					this.popupChoose(mixKey(mixtype));
+				}
+			}
+		}
+
 		if (response) {
 			if (typeof response.search === "undefined") {
 				this.loggedin = response.loggedin;
@@ -250,7 +262,7 @@ GridSceneAssistant.prototype = {
 			}
 		}
 		if (!this.loaded) {
-			this.showBanner("Just Type to Search...");
+			//this.showBanner("Just Type to Search...");
 			this.loaded = true;
 		}
 		if (this.type != "followed") {
@@ -262,12 +274,11 @@ GridSceneAssistant.prototype = {
 				if (transport.status === 200) {
 					this.currentpage = 1;
 					this.pagecount = Math.round(parseInt(transport.responseJSON.total_entries, 0) / 10);
-					this.$.divider1.setLabel("Followed Users (" + this.currentpage + "/" + this.pagecount + ")"); //Latest Mixes ( 1/10)
+					this.$.divider1.setLabel("Followed Users (" + this.currentpage + "/" + this.pagecount + ")");
 					this.controller.get('scroller2').mojo.revealTop();
 					this.cmdMenuModel.items[2].items[0].label = this.typelabel;
 					this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
-									this.cmdMenuModel.items[2].items[0].label = this.typelabel;
-				//this.cmdMenuModel.items[2].items[0].command = this.type;
+					this.cmdMenuModel.items[2].items[0].label = this.typelabel;
 					this.controller.modelChanged(this.cmdMenuModel, this);
 					f = this.fillUserList(transport.responseJSON.users);
 					this.controller.setWidgetModel("list1", f.getList());
@@ -366,7 +377,7 @@ GridSceneAssistant.prototype = {
 				this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
 				this.cmdMenuModel.items[2].items[0].label = this.typelabel;
 				//this.cmdMenuModel.items[2].items[0].command = this.type;
-				this.controller.modelChanged(this.cmdMenuModel,this);
+				this.controller.modelChanged(this.cmdMenuModel, this);
 				this.writeDescription();
 				f = this.fillList(this.tracks, transport.responseJSON.mix_set_id);
 				this.controller.setWidgetModel("list1", f.getList());
@@ -394,9 +405,8 @@ GridSceneAssistant.prototype = {
 					this.controller.get('scroller2').mojo.revealTop();
 					this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
 					this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
-									this.cmdMenuModel.items[2].items[0].label = this.typelabel;
-				//this.cmdMenuModel.items[2].items[0].command = this.type;
-				this.controller.modelChanged(this.cmdMenuModel,this);
+					this.cmdMenuModel.items[2].items[0].label = this.typelabel;
+					this.controller.modelChanged(this.cmdMenuModel, this);
 					f = this.fillUserList(transport.responseJSON.users);
 					this.controller.setWidgetModel("list1", f.getList());
 				}
@@ -493,7 +503,7 @@ GridSceneAssistant.prototype = {
 				this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
 				this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
 				this.cmdMenuModel.items[2].items[0].label = this.typelabel;
-			//	this.cmdMenuModel.items[2].items[0].command = this.type;
+				//	this.cmdMenuModel.items[2].items[0].command = this.type;
 				this.controller.modelChanged(this.cmdMenuModel, this);
 				this.writeDescription();
 				f = this.fillList(this.tracks, transport.responseJSON.mix_set_id);
@@ -522,8 +532,8 @@ GridSceneAssistant.prototype = {
 					this.controller.get('scroller2').mojo.revealTop();
 					this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
 					this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
-									this.cmdMenuModel.items[2].items[0].label = this.typelabel;
-			//	this.cmdMenuModel.items[2].items[0].command = this.type;
+					this.cmdMenuModel.items[2].items[0].label = this.typelabel;
+					//	this.cmdMenuModel.items[2].items[0].command = this.type;
 					this.controller.modelChanged(this.cmdMenuModel, this);
 					f = this.fillUserList(transport.responseJSON.users);
 					this.controller.setWidgetModel("list1", f.getList());

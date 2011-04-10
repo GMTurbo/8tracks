@@ -27,7 +27,7 @@ opus.Gizmo({
 			name: "scroller1",
 			scrollPosition: {
 				left: 0,
-				top: 0
+				top: -156
 			},
 			type: "Palm.Mojo.Scroller",
 			l: 0,
@@ -198,7 +198,7 @@ opus.Gizmo({
 							]
 						},
 						{
-							name: "row6",
+							name: "row2",
 							dropTarget: true,
 							rowType: "last",
 							type: "Palm.Mojo.Row",
@@ -207,13 +207,12 @@ opus.Gizmo({
 							h: "auto",
 							controls: [
 								{
-									name: "picture1",
-									ontap: "picture1Tap",
-									type: "Palm.Picture",
-									l: 72,
-									w: 150,
+									name: "html1",
+									content: "<img src=#{pic} style=\"-webkit-border-radius: 20px;display:block; margin-left:auto; margin-right:auto; height:100%;\" class=\"pic\"></img>",
+									type: "Palm.Mojo.Html",
+									l: 0,
 									t: 0,
-									h: 111
+									h: 118
 								}
 							]
 						}

@@ -1,13 +1,19 @@
 {
 	"id": "com.mycompany.8tracks",
-	"version": "1.4.1",
+	"version": "1.4.3",
 	"vendor": "Gabe Testa",
 	"type": "web",
 	"main": "index.html",
 	"title": "8tracks",
-	"icon": "icon.jpg",
+	"icon": "icon.png",
 	"splashBackground": "images/trans-blue.png",
-	"keywords":["music","eight"],
-	"miniicon": "images/mini_icon.png",
-	"theme": "palm-dark"
+	"keywords": ["music", "eight"],
+	"theme": "palm-dark",
+	"universalSearch":{
+						"search":{ 
+							"displayName": "8tracks Mix Search",
+							"url":"com.mycompany.8tracks",
+							"launchParam":"query"
+						}
+	}
 }

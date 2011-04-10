@@ -63,13 +63,14 @@ function PlayerAssistant(argFromPusher, token, response, mixphoto, setid, userid
 	this.sound.autoplay = true;
 	this.downloadImage = function(url, onSuccess, onFailure) {
 		if (!this.downloaded) {
+			original = url.replace("max200", "original");
 			split = url.split("/");
 			name = split[split.length - 1];
 			name = name.split(".")[0] + "." + name.split(".")[2];
 			this.controller.serviceRequest('palm://com.palm.downloadmanager/', {
 				method: 'download',
 				parameters: {
-					target: url,
+					target: original,
 					targetDir: "/media/internal/files/8tracks",
 					targetFilename: name,
 					keepFilenameOnRedirect: false,
@@ -241,6 +242,10 @@ PlayerAssistant.prototype = {
 			this.audio1 = new Audio();
 		}
 		this.setupListeners();
+		this.libs = MojoLoader.require({ name: "mediaextension", version: "1.0"});
+		this.extObj = this.libs.mediaextension.MediaExtension.getInstance(this.audio1);
+		this.extObj.audioClass = "media";
+		//Mojo.Event.listen(this.controller.get('pic'), Mojo.Event.hold, this.picture1Hold.bind(this));
 		Ares.setupSceneAssistant(this);
 	},
 	cleanup: function() {
@@ -264,7 +269,10 @@ PlayerAssistant.prototype = {
 			});
 		}
 		this.$.picture1.setSrc(this.mphoto);
-	
+		//info ={
+		//	pic: this.mphoto
+		//};
+		//this.controller.setWidgetModel("html2", {pic: this.mphoto});
 		songprop = {
 			skipped: false,
 			duration: 0,
@@ -283,6 +291,7 @@ PlayerAssistant.prototype = {
 		DashPlayerInstance = new DashboardPlayer();
 		DashPlayerInstance.setSkipEvent(this.skipTrack.bind(this));
 		DashPlayerInstance.setLikeToggleEvent(this.setLikeStateCurrent.bind(this));
+		DashPlayerInstance.setLogin(this.loggedin);
 		DashPlayerInstance.update(this.audio1, this.mphoto, this.trackinfo);
 	},
 	showSpinner: function(show) {
@@ -365,7 +374,7 @@ PlayerAssistant.prototype = {
 	loadNextMix: function() {
 		var onComplete = function(transport) {
 			if (transport.status == 200) {
-				this.showBanner(" New Mix: " + transport.responseJSON.next_mix.name);
+				this.showBanner("New Mix: " + transport.responseJSON.next_mix.name);
 				this.mphoto = transport.responseJSON.next_mix.cover_urls.original;
 				this.$.picture1.setSrc(this.mphoto);
 				this.model.progress = 0;
@@ -433,7 +442,8 @@ PlayerAssistant.prototype = {
 					props = {
 						skipped: false,
 						duration: 0,
-						liked: false
+						liked: false,
+						set: false
 					};
 					this.songProps.push(props);
 					this.audio1.pause();
@@ -530,7 +540,8 @@ PlayerAssistant.prototype = {
 					props = {
 						skipped: false,
 						duration: 0,
-						liked: false
+						liked: false,
+						set: false
 					};
 					this.songProps.push(props);
 					this.audio1.pause();

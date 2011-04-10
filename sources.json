@@ -1,92 +1,103 @@
 [
-		{"source": "lib/themeManager.js"},
-		{ "source": "app/assistants/main-assistant.js" },
-    { "source": "app/assistants/app-assistant.js" },
-    { "source": "lib/audio.js" },
-		{
-    "source": "app/assistants/dashboard-assistant.js" 
-    },
-    {
-        "source": "app/assistants/stage-assistant.js"
-    }, 
-    {
-        "source": "app/views/main/main-chrome.js", 
-        "scenes": "main"
-    }, 
-    {
-        "source": "app/assistants/main-assistant.js", 
-        "scenes": "main"
-    }, 
-    {
-        "source": "app/assistants/signedin-assistant.js", 
-        "scenes": "signedin"
-    }, 
-    {
-        "source": "app/views/signedin/signedin-chrome.js", 
-        "scenes": "signedin"
-    }, 
-    {
-        "source": "app/assistants/player-assistant.js", 
-        "scenes": "player"
-    }, 
-    {
-        "source": "app/views/player/player-chrome.js", 
-        "scenes": "player"
-    }, 
-    {
-        "source": "app/views/signMeUp/signMeUp-chrome.js", 
-        "scenes": "signMeUp"
-    }, 
-    {
-        "source": "app/views/userInfo/userInfo-chrome.js", 
-        "scenes": "userInfo"
-    }, 
-    {
-        "source": "app/assistants/mixDetailsScene-assistant.js", 
-        "scenes": "mixDetailsScene"
-    }, 
-    {
-        "source": "app/views/mixDetailsScene/mixDetailsScene-chrome.js", 
-        "scenes": "mixDetailsScene"
-    }, 
-    {
-        "source": "app/assistants/gridScene-assistant.js", 
-        "scenes": "gridScene"
-    }, 
-    {
-        "source": "app/views/gridScene/gridScene-chrome.js", 
-        "scenes": "gridScene"
-    }, 
-    {
-        "source": "app/assistants/splash-assistant.js", 
-        "scenes": "splash"
-    }, 
-    {
-        "source": "app/views/splash/splash-chrome.js", 
-        "scenes": "splash"
-    }, 
-    {
-        "source": "app/assistants/searchScrene-assistant.js", 
-        "scenes": "searchScrene"
-    }, 
-    {
-        "source": "app/views/searchScrene/searchScrene-chrome.js", 
-        "scenes": "searchScrene"
-    }, 
-    {
-        "source": "app/assistants/userInfo-assistant.js", 
-        "scenes": "userInfo"
-    }, 
-    {
-        "source": "app/views/userInfo/userInfo-chrome.js", 
-        "scenes": "userInfo"
-    }, 
-    {
-        "source": "app/assistants/login-assistant.js", 
-        "scenes": "login"
-    }, 
-    {
-        "source": "app/views/login/login-chrome.js", 
-        "scenes": "login"
-    }
-]
+	{
+	"source": "lib/themeManager.js"
+},
+{
+	"source": "lib/audio.js"
+},
+{
+	"source": "lib/justType.js"
+},
+	{
+	"source": "app/assistants/main-assistant.js"
+},
+	{
+	"source": "app/assistants/app-assistant.js"
+},
+	{
+	"source": "app/assistants/dashboard-assistant.js"
+},
+	{
+	"source": "app/assistants/stage-assistant.js"
+},
+	{
+	"source": "app/views/main/main-chrome.js",
+	"scenes": "main"
+},
+	{
+	"source": "app/assistants/main-assistant.js",
+	"scenes": "main"
+},
+	{
+	"source": "app/assistants/signedin-assistant.js",
+	"scenes": "signedin"
+},
+	{
+	"source": "app/views/signedin/signedin-chrome.js",
+	"scenes": "signedin"
+},
+	{
+	"source": "app/assistants/player-assistant.js",
+	"scenes": "player"
+},
+	{
+	"source": "app/views/player/player-chrome.js",
+	"scenes": "player"
+},
+	{
+	"source": "app/views/signMeUp/signMeUp-chrome.js",
+	"scenes": "signMeUp"
+},
+	{
+	"source": "app/views/userInfo/userInfo-chrome.js",
+	"scenes": "userInfo"
+},
+	{
+	"source": "app/assistants/mixDetailsScene-assistant.js",
+	"scenes": "mixDetailsScene"
+},
+	{
+	"source": "app/views/mixDetailsScene/mixDetailsScene-chrome.js",
+	"scenes": "mixDetailsScene"
+},
+	{
+	"source": "app/assistants/gridScene-assistant.js",
+	"scenes": "gridScene"
+},
+	{
+	"source": "app/views/gridScene/gridScene-chrome.js",
+	"scenes": "gridScene"
+},
+	{
+	"source": "app/assistants/splash-assistant.js",
+	"scenes": "splash"
+},
+	{
+	"source": "app/views/splash/splash-chrome.js",
+	"scenes": "splash"
+},
+	{
+	"source": "app/assistants/searchScrene-assistant.js",
+	"scenes": "searchScrene"
+},
+	{
+	"source": "app/views/searchScrene/searchScrene-chrome.js",
+	"scenes": "searchScrene"
+},
+	{
+	"source": "app/assistants/userInfo-assistant.js",
+	"scenes": "userInfo"
+},
+	{
+	"source": "app/views/userInfo/userInfo-chrome.js",
+	"scenes": "userInfo"
+},
+	{
+	"source": "app/assistants/login-assistant.js",
+	"scenes": "login"
+},
+	{
+	"source": "app/views/login/login-chrome.js",
+	"scenes": "login"
+}
+	]

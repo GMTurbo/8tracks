@@ -17,6 +17,7 @@ opus.Gizmo({
 		{
 			name: "sound",
 			autoPlay: true,
+			audioClass: "defaultapp",
 			type: "Palm.Mojo.Audio"
 		}
 	],
@@ -41,7 +42,7 @@ opus.Gizmo({
 			label: "",
 			type: "Palm.Mojo.Label",
 			l: 0,
-			t: 46,
+			t: 39,
 			h: 17
 		},
 		{
@@ -50,17 +51,17 @@ opus.Gizmo({
 			onhold: "picture1Hold",
 			type: "Palm.Picture",
 			l: 0,
-			w: 321,
-			t: 56,
-			h: 143
+			w: "100%",
+			t: 0,
+			h: "100%"
 		},
 		{
 			name: "html1",
-			content: "<br><div x-mojo-element=\"ProgressBar\" id=\"progressbarId\" class=\"progressbarClass\" \n name=\"progressbarName\"></div> <br>",
+			content: "<br><div x-mojo-element=\"ProgressBar\" id=\"progressbarId\" class=\"progressbarClass\" \n name=\"progressbarName\" style=\"padding-left: 7px; padding-right:7px; height;5x;\"></div> <br>",
 			type: "Palm.Mojo.Html",
 			l: 0,
 			t: 200,
-			h: 32
+			h: "30"
 		},
 		{
 			name: "divider2",
@@ -111,14 +112,14 @@ opus.Gizmo({
 					],
 					useSampleData: false,
 					title: undefined,
-					itemHtml: "<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\"> \n  <div class=\"title\"><currentsong=\"song\"><oldsong=\"song\"><skipped=\"skipped\">&nbsp;<font face=\"cabin\"><i><b>#{currentsong}</b></i></font><font face=\"Arial\" color=\"#DDDDDD\"><small>#{oldsong}<del>#{skipped}</del></small></font><currentartist=\"tag\"><duration=\"duration\"><img src=\"#{likeImage}\" align=\"right\"><br><small><font face=\"helvetica\" color=\"#808080\">&nbsp;#{currentartist}&nbsp;-&nbsp;#{duration}</font></small><mixInfo=\"mixInfo\"></br></div>\n</div>  \n",
+					itemHtml: "<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\" style=\"padding:1pt;\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <duration=\"duration\">\n    <currentsong=\"song\">\n    <oldsong=\"song\">\n    <skipped=\"skipped\">\n    <currentartist=\"tag\">\n    <table>\n      <tr>\n        <th id=\"col2\" style=\"width:300px;\">\n          <dt> \n              <div id=\"currentSong\"> #{currentsong}</div> \n              <div id=\"oldSong\"> #{oldsong} </div>\n              <div id=\"skippedSong\"> #{skipped} </div>\n          </dt>\n          <dt id=\"artistText\"> #{currentartist}&nbsp;-&nbsp;#{duration}</dt>\n        </th>\n        <th id=\"col1\">\n            <img src=\"#{likeImage}\" style=\"float:right;\">\n        </th>\n      </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
 					onlisttap: "list1Listtap",
 					swipeToDelete: false,
 					reorderable: false,
 					type: "Palm.Mojo.List",
 					l: 0,
 					t: 0,
-					h: 285,
+					h: 252,
 					styles: {
 						textColor: "black",
 						bgImage: ""

@@ -1,15 +1,53 @@
-.title{
-  font-size: 14pt;
-  font-family: Arial;
-  padding: 2pt;
+@charset "utf-8";
+
+dt#titleText {
+	font-size: 14pt;
+	font-family: "Prelude Medium", sans-serif;
+	padding: 2pt;
+	vertical-align: top;
 }
-img {
-  padding: 2pt;
-  float: left;
-  //display: block;
+
+dt#tagText {
+	font-family: Helvetica, Georgia, sans-serif;
+	color: #777777;
+	font-size: 11pt;
 }
-.second {
-  font-family: Helvetica;
-  color: #808080;
-  font-size: 11pt;
+
+#col2 {
+	padding: 2pt;
+	text-align: left;
+	vertical-align: top;
+}
+
+#col1 {
+ vertical-align: top;
+}
+
+.floatleft {
+	float: left;
+	vertical-align: text-top;
+	margin: 2px;
+	width: 60px;
+	height: 60px;
+	-webkit-border-radius:8px;
+}
+	
+dt#artistText {
+	font-family: Georgia, sans-serif;
+	color: #777777;
+	font-size: 12pt;
+}
+div#currentSong {
+	font-family: Helvetica, sans-serif;
+	font-style: italic;
+	font-size: 16pt;
+}
+div#oldSong {
+	font-family: Arial, sans-serif;
+	font-size: 12pt;
+}
+div#skippedSong {
+	font-family: Arial, sans-serif;
+	font-size: 12pt;
+	text-decoration: line-through; 
 }

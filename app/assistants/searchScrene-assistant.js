@@ -14,7 +14,9 @@ function SearchScreneAssistant(argFromPusher, userid) {
 	};
 	if (typeof argFromPusher !== 0 && argFromPusher.toString().length === 2) {
 		this.character = Mojo.Char.isValidWrittenChar(argFromPusher);
-	} else {
+	} else if (argFromPusher.length > 2){
+		this.character = argFromPusher;
+	}else{
 		this.character = "";
 	}
 	this.userid = -1;
@@ -31,25 +33,14 @@ function SearchScreneAssistant(argFromPusher, userid) {
 		}
 		var list = new Array(tracks.length);
 		for (var i = 0; i < tracks.length; i++) {
-			var name = tracks[i].name;
-			var tag = tracks[i].tag_list_cache;
-			if (name !== null) {
-				if (name.length > 30) {
-					name = name.substring(0, 50) + "...";
-				}
-			}
-			if (tag !== null) {
-				if (tag.length > 60) {
-					tag = tag.substring(0, 50) + "...";
-				}
-			}
 			list[i] = {
-				title: name,
+				title: tracks[i].name,
 				leftImage: tracks[i].cover_urls.sq56.toString() === "/images/mix_covers/sq56.gif" ? Mojo.appPath + "/images/no_image.png" : tracks[i].cover_urls.sq56,
-				tag: tag,
+				tag: tracks[i].tag_list_cache,
 				mixInfo: tracks[i],
 				set_id: this.setid,
-				type: "mix"
+				type: "mix",
+				creator: "(" + tracks[i].user.login + ")"
 			};
 		}
 		listModel = {

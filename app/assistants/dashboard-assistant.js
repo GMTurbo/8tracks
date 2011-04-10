@@ -1,11 +1,11 @@
-/* Copyright 2009 Palm, Inc.  All rights reserved. */
 
-/*globals Mojo PowerManagerService Util Element AppAssistant */
 var DashboardAssistant = function(musicPlayer) {
 	this.musicPlayer = musicPlayer;
 	this.toggle = false;
 	// if there isn't anything in the musicPlayer, don't open up the dashboard
 	if (this.musicPlayer === 0) {
+		Mojo.Controller.getAppController().closeStage('dashboard');
+	} else if(this.musicPlayer.audio() === 0){
 		Mojo.Controller.getAppController().closeStage('dashboard');
 	}
 
@@ -39,20 +39,21 @@ DashboardAssistant.prototype = {
 	},
 	cleanup: function() {
 		this.removeListeners();
-		Ares.cleanupSceneAssistant(this);
+		//this.controller.get('dashboard-player').removeEventListener(Mojo.Event.tap, this.tapHandler.bindAsEventListener(this));
+	//	Ares.cleanupSceneAssistant(this);
 	},
 
 	updateSong: function(arg) {
 		if (typeof arg === "undefined") {
 			Mojo.Log.info("Updating the dashboard");
 			var song = this.musicPlayer.song();
-			var data = {
+			data = {
 				title: song.name,
 				artist: song.artist,
 				pause: this.musicPlayer.isPlaying() ? "pause" : "",
 				unlike: this.musicPlayer.liked() ? "unlike" : ""
 			};
-			var renderedInfo = Mojo.View.render({
+			renderedInfo = Mojo.View.render({
 				object: data,
 				template: 'dashboard/dashboard-player'
 			});
@@ -60,18 +61,20 @@ DashboardAssistant.prototype = {
 			this.controller.get('dashboard-player').update(renderedInfo);
 			myNewString = this.musicPlayer.photo().replace("original", "max200");
 			strarray = myNewString.split(".");
-			if (strarray[strarray.length - 1] === "jpeg" || strarray[strarray.length - 1] === "gif") myNewString = Mojo.appPath + "/images/8tracksDash2.png";
+			if (strarray[strarray.length - 1] === "jpeg" || strarray[strarray.length - 1] === "gif"){ 
+					myNewString = Mojo.appPath + "/images/8tracksDash2.png";
+				}
 			// the template render doesn't do this properly, doing it manually
 			this.controller.get('dashboard-player-art').style.background = "url(\"" + myNewString + "\") center center no-repeat";
 		}else{
 			Mojo.Log.info("Updating the dashboard");
-			var data = {
+			data = {
 				title: arg,
 				artist: "",
 				pause: this.musicPlayer.isPlaying() ? "pause" : "",
 				unlike: this.musicPlayer.liked() ? "unlike" : ""
 			};
-			var renderedInfo = Mojo.View.render({
+			renderedInfo = Mojo.View.render({
 				object: data,
 				template: 'dashboard/dashboard-player'
 			});
@@ -79,7 +82,9 @@ DashboardAssistant.prototype = {
 			this.controller.get('dashboard-player').update(renderedInfo);
 			myNewString = this.musicPlayer.photo().replace("original", "max200");
 			strarray = myNewString.split(".");
-			if (strarray[strarray.length - 1] === "jpeg" || strarray[strarray.length - 1] === "gif") myNewString = Mojo.appPath + "/images/8tracksDash2.png";
+			if (strarray[strarray.length - 1] === "jpeg" || strarray[strarray.length - 1] === "gif"){ 
+				myNewString = Mojo.appPath + "/images/8tracksDash2.png";
+			}
 			// the template render doesn't do this properly, doing it manually
 			//var thumbUrl = this.musicPlayer.photo();//Util.albumArtLargeUrlFormatter(song.thumbnails[0]);
 			this.controller.get('dashboard-player-art').style.background = "url(\"" + myNewString + "\") center center no-repeat";
@@ -127,7 +132,20 @@ DashboardAssistant.prototype = {
 			this.controller.get('playpause').removeClassName("pause");
 		}
 	},
-
+	
+	relaunchMusicPlayer: function(){
+		var parameters = {
+			id:'com.mycompany.8tracks',
+			params: {}
+		};
+		return new Mojo.Service.Request(
+			'palm://com.palm.applicationManager',
+				{
+					method: 'open',
+					parameters: parameters
+				}
+		);
+	},
 	tapHandler: function(event) {
 		var id = event.target.id;
 		if (id === 'playpause') {
@@ -136,10 +154,12 @@ DashboardAssistant.prototype = {
 			this.musicPlayer.skipTrack();
 			this.updateSong("Retrieving Next...");
 		} else if (id === 'likeunlike') {
-			this.toggleLike();
+			if(this.musicPlayer.loggedIn()){
+				this.toggleLike();
+			}
 		} else {
 			if (!this.locked) {
-				//AppAssistant.appManagerService.relaunchMusicPlayer();
+				//ret = this.relaunchMusicPlayer();
 			}
 		}
 	}

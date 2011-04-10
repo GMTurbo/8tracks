@@ -48,12 +48,12 @@ opus.Gizmo({
 					h: 16
 				},
 				{
-					name: "picture1",
-					type: "Palm.Picture",
-					l: 95,
-					w: 130,
-					t: 0,
-					h: 117
+					name: "html1",
+					content: "<img src=#{pic} style=\"-webkit-border-radius: 20px;display:block; margin-left:auto; margin-right:auto; height:100%;\" class=\"pic\"></img>",
+					type: "Palm.Mojo.Html",
+					l: 0,
+					t: 16,
+					h: 154
 				},
 				{
 					name: "group1",
@@ -63,6 +63,9 @@ opus.Gizmo({
 					l: 0,
 					t: 133,
 					h: 148,
+					styles: {
+						borderColor: ""
+					},
 					controls: [
 						{
 							name: "scroller5",
@@ -124,14 +127,16 @@ opus.Gizmo({
 					],
 					useSampleData: false,
 					title: undefined,
-					itemHtml: "<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\"> \n  <div class=\"title\"><img src=\"#{leftImage}\" align=\"left\">&nbsp;<font face=\"Arial\">#{title}</font><tag=\"tag\"><br><small><font face=\"helvetica\" color=\"#808080\">&nbsp;#{tag}</font></small></br><mixInfo=\"mixInfo\"><set_id=\"set_id\"></div>  \n</div",
+					itemHtml: "\n<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\" style=\"padding:1pt;\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <set_id=\"set_id\">\n    <tag=\"tag\">\n    <table style=\"padding:1pt;\">\n    <tr>\n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\"></th>\n      <th id=\"col2\">\n        <dt id=\"titleText\"> #{title} </dt>\n        <dt id=\"tagText\"> #{tag} </dt>\n      </th>\n    </tr>\n    </table>\n  </div>  \n</link>\n</div>  ",
 					onlisttap: "list1Listtap",
+					swipeToDelete: false,
+					reorderable: false,
 					type: "Palm.Mojo.List",
 					l: 0,
 					t: 315,
-					h: 297,
+					h: 212,
 					styles: {
-						textColor: "white"
+						textColor: "black"
 					}
 				}
 			]

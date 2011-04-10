@@ -19,7 +19,8 @@ function MixDetailsSceneAssistant(argFromPusher, setid, userid, username, passwo
 		this.$.tags.setLabel(tags);
 	};
 	this.setPicture = function(picture) {
-		this.$.picture1.setSrc(picture);
+		this.controller.setWidgetModel("html1", {pic: picture});
+		//this.$.picture1.setSrc(picture);
 	};
 	this.setUserInfo = function(info) {
 		this.$.creator.setLabel(info);
@@ -121,7 +122,7 @@ MixDetailsSceneAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-					                                    {
+				{
 					label: this.mixInfo.name,
 					width: 320
 				}]
@@ -144,12 +145,14 @@ MixDetailsSceneAssistant.prototype = {
 		};
 		this.controller.setupWidget(Mojo.Menu.appMenu, {},
 		this.appMenuModel);
+		
 		Ares.setupSceneAssistant(this);
 	},
 	cleanup: function() {
 		Ares.cleanupSceneAssistant(this);
 	},
 	activate: function(data) {
+		//this.controller.get("picture1").style.cssText += "-webkit-border-radius:12px";
 		this.cookie2 = new Mojo.Model.Cookie("prefs");
 		if (this.cookie2.get()) {
 			props = themeLookup(this.cookie2.get().theme);
@@ -167,6 +170,10 @@ MixDetailsSceneAssistant.prototype = {
 				textColor: props.textColor
 			});
 		}
+		
+		
+		//this.controller.modelChanged(this.$.picture1, this);
+		
 		if (typeof data !== "undefined") {
 			if (data.mixInfo.name != this.mixInfo.name) {
 				this.mixInfo = data.mixInfo;
@@ -202,7 +209,8 @@ MixDetailsSceneAssistant.prototype = {
 		}
 		this.showSpinner(false);
 		this.writeDetails(this.mixInfo.name, this.mixInfo.description, this.mixInfo.tag_list_cache);
-		this.setPicture(this.mixInfo.user.avatar_urls.sq56);
+		this.controller.setWidgetModel("html1", {pic: this.mixInfo.user.avatar_urls.sq56});
+		//this.setPicture(this.mixInfo.user.avatar_urls.sq56);
 		this.setUserInfo(this.mixInfo.user.login);
 	},
 
@@ -235,7 +243,7 @@ MixDetailsSceneAssistant.prototype = {
 		var onComplete = function(transport) {
 			if (transport.status == 200) {
 				this.showSpinner(false);
-				this.controller.stageController.pushScene('player', this.mixInfo, this.token, transport.responseJSON, this.mixInfo.cover_urls.original, this.setid, this.userid, this.username, this.password, this.cmdMenuModel.items[1].items[0].command);
+				this.controller.stageController.pushScene('player', this.mixInfo, this.token, transport.responseJSON, this.mixInfo.cover_urls.max200, this.setid, this.userid, this.username, this.password, this.cmdMenuModel.items[1].items[0].command);
 			}
 		};
 		var onFailure = function(transport) {

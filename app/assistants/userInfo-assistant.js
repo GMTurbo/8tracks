@@ -31,9 +31,9 @@ function UserInfoAssistant(argFromPusher) {
 				}
 			}
 			list[i] = {
-				title: name,
+				title: tracks[i].name,
 				leftImage: tracks[i].cover_urls.sq56.toString() === "/images/mix_covers/sq56.gif" ? Mojo.appPath + "/images/no_image.png" : tracks[i].cover_urls.sq56,
-				tag: tag,
+				tag: tracks[i].tag_list_cache,
 				mixInfo: tracks[i]
 			};
 		}
@@ -101,7 +101,7 @@ UserInfoAssistant.prototype = {
 			menuClass: 'no-fade'
 		},
 		this.feedMenuModel);
-
+		//this.controller.get("picture1").style.cssText += "-webkit-border-radius:12px";
 		Ares.setupSceneAssistant(this);
 	},
 	cleanup: function() {
@@ -150,7 +150,8 @@ UserInfoAssistant.prototype = {
 		var onComplete = function(transport) {
 			if (transport.status === 200) {
 				var image = transport.responseJSON.user.avatar_urls.sq100.toString() === "/images/avatars/sq100.jpg" ? Mojo.appPath + "/images/unknownUser.jpg" : transport.responseJSON.user.avatar_urls.sq100;
-				this.$.picture1.setSrc(image);
+				//this.$.picture1.setSrc(image);
+				this.controller.setWidgetModel("html1", {pic: image});
 				this.writeUserDetails(transport.responseJSON.user.bio_html, "");
 				if (!transport.responseJSON.user.followed_by_current_user) {
 					this.cmdMenuModel.items[0].items[2].label = "Follow";
