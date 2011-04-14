@@ -1,4 +1,17 @@
-function SearchScreneAssistant(argFromPusher, userid) {
+function SearchScreneAssistant(argFromPusher, userid, criteria) {
+	this.criteria = "All";
+	this.searchCriteria = "q";
+	if (typeof criteria !== "undefined") {
+		this.criteria = criteria;
+		switch (criteria) {
+		case "Genre":
+			this.searchCriteria = "tag";
+			break;
+		case "Creator":
+			this.searchCriteria = "user";
+			break;
+		}
+	}
 	this.popUp = function(title, message) {
 		this.controller.showAlertDialog({
 			title: title,
@@ -14,12 +27,13 @@ function SearchScreneAssistant(argFromPusher, userid) {
 	};
 	if (typeof argFromPusher !== 0 && argFromPusher.toString().length === 2) {
 		this.character = Mojo.Char.isValidWrittenChar(argFromPusher);
-	} else if (argFromPusher.length > 2){
+	} else if (argFromPusher.length > 2) {
 		this.character = argFromPusher;
-	}else{
+	} else {
 		this.character = "";
 	}
 	this.userid = -1;
+	this.searchCriteria = "q";
 	cookie = new Mojo.Model.Cookie("credentials");
 	if (cookie.get()) {
 		this.userid = typeof userid === "undefined" ? -1 : userid;
@@ -40,7 +54,7 @@ function SearchScreneAssistant(argFromPusher, userid) {
 				mixInfo: tracks[i],
 				set_id: this.setid,
 				type: "mix",
-				creator: "(" + tracks[i].user.login + ")"
+				timeSince: new Date(tracks[i].first_published_at).toRelativeTime() === "NaN years ago" ? "by " + tracks[i].user.login : new Date(tracks[i].first_published_at).toRelativeTime() + " by " + tracks[i].user.login
 			};
 		}
 		listModel = {
@@ -105,6 +119,7 @@ SearchScreneAssistant.prototype = {
 		}
 		this.controller.get('textField3').mojo.focus();
 		this.controller.get('textField3').mojo.setValue(this.character);
+		this.$.listSelector1.setValue(this.criteria);
 		this.showSpinner(false);
 		if (this.character !== "" && typeof data === "undefined") {
 			this.search();
@@ -130,7 +145,7 @@ SearchScreneAssistant.prototype = {
 	search: function() {
 		var onComplete = function(transport) {
 			this.currentpage = 1;
-			this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 10);
+			this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 12);
 			this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
 			this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
 			this.controller.modelChanged(this.cmdMenuModel, this);
@@ -142,10 +157,15 @@ SearchScreneAssistant.prototype = {
 		};
 		var onFailure = function(transport) {
 			this.showSpinner(false);
-			this.popUp("Oops!", "Search Error");
+			//this.popUp("Oops!", "Search Error");
 		};
 		this.character = this.controller.get('textField3').mojo.getValue();
-		url = "http://8tracks.com/mixes.json?q=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage;
+		var url = "";
+		if (this.searchCriteria !== "user") {
+			url = "http://8tracks.com/mixes.json?" + this.searchCriteria + "=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage;
+		} else {
+			url = "http://8tracks.com/users/" + this.controller.get('textField3').mojo.getValue().toString().toLowerCase() + "/mixes.json?page=" + this.currentpage;
+		}
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
 
@@ -174,15 +194,19 @@ SearchScreneAssistant.prototype = {
 			this.showSpinner(false);
 			this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 		};
-		url = "http://8tracks.com/mixes.json?q=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage;
+		if (this.searchCriteria !== "user") {
+			url = "http://8tracks.com/mixes.json?" + this.searchCriteria + "=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage;
+		} else {
+			url = "http://8tracks.com/users/" + this.controller.get('textField3').mojo.getValue() + "/mixes.xml?view=mix_feed&page=" + this.currentpage;
+		}
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	getPreviousPage: function() {
 		if (this.currentpage - 1 > 0) {
 			this.currentpage -= 1;
 			var onComplete = function(transport) {
-			this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
-			this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
+				this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
+				this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
 				this.controller.modelChanged(this.cmdMenuModel, this);
 				this.tracks = transport.responseJSON.mixes;
 				f = this.fillList(this.tracks);
@@ -194,9 +218,18 @@ SearchScreneAssistant.prototype = {
 				this.showSpinner(false);
 				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 			};
-			url = "http://8tracks.com/mixes.json?q=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage;
+			var url = "";
+			if (this.searchCriteria !== "user") {
+				url = "http://8tracks.com/mixes.json?" + this.searchCriteria + "=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage;
+			} else {
+				url = "http://8tracks.com/users/" + this.controller.get('textField3').mojo.getValue() + "/mixes.xml?view=mix_feed&page=" + this.currentpage;
+			}
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		}
+	},
+	listSelector1Change: function(inSender, event) {
+		this.searchCriteria = event.value;
+		this.search();
 	}
 };
 

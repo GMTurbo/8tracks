@@ -16,11 +16,54 @@ function MixDetailsSceneAssistant(argFromPusher, setid, userid, username, passwo
 	this.writeDetails = function(name, description, tags) {
 		this.$.name.setLabel(name);
 		this.$.description.setLabel(description);
-		this.$.tags.setLabel(tags);
+		var fillTagGrid = function(tags) {
+			list = [];
+			step = Math.floor(tags.length / 3, 0);
+			for (i = 0; i < step; i++) {
+				list.push({
+					tag1: tags[3 * i],
+					tag2: tags[3 * i + 1],
+					tag3: tags[3 * i + 2]
+				});
+			}
+			//get remaining tags
+			count = tags.length - (3 * step);
+			var remainder;
+			switch (count) {
+			case 1:
+				remainder = {
+					tag1: tags[tags.length - 1],
+					tag2: "",
+					tag3: ""
+				};
+				list.push(remainder);
+				break;
+			case 2:
+				remainder = {
+					tag1: tags[tags.length - 2],
+					tag2: tags[tags.length - 1],
+					tag3: ""
+				};
+				list.push(remainder);
+				break;
+			}
+
+			listModel = {
+				items: list
+			};
+			return {
+				getList: function() {
+					return listModel;
+				}
+			};
+		};
+
+		this.controller.setWidgetModel("list1", fillTagGrid(tags.split(",")).getList());
 	};
 	this.setPicture = function(picture) {
-		this.controller.setWidgetModel("html1", {pic: picture});
-		//this.$.picture1.setSrc(picture);
+		this.controller.setWidgetModel("html1", {
+			pic: picture
+		});
 	};
 	this.setUserInfo = function(info) {
 		this.$.creator.setLabel(info);
@@ -122,7 +165,7 @@ MixDetailsSceneAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-				{
+					                {
 					label: this.mixInfo.name,
 					width: 320
 				}]
@@ -145,7 +188,6 @@ MixDetailsSceneAssistant.prototype = {
 		};
 		this.controller.setupWidget(Mojo.Menu.appMenu, {},
 		this.appMenuModel);
-		
 		Ares.setupSceneAssistant(this);
 	},
 	cleanup: function() {
@@ -157,7 +199,7 @@ MixDetailsSceneAssistant.prototype = {
 		if (this.cookie2.get()) {
 			props = themeLookup(this.cookie2.get().theme);
 			this.controller.get('mixDetailsScene').style.backgroundImage = props.URL;
-			this.$.tags.style.addStyles({
+			this.$.list1.style.addStyles({
 				textColor: props.textColor
 			});
 			this.$.name.style.addStyles({
@@ -170,10 +212,7 @@ MixDetailsSceneAssistant.prototype = {
 				textColor: props.textColor
 			});
 		}
-		
-		
-		//this.controller.modelChanged(this.$.picture1, this);
-		
+
 		if (typeof data !== "undefined") {
 			if (data.mixInfo.name != this.mixInfo.name) {
 				this.mixInfo = data.mixInfo;
@@ -192,25 +231,28 @@ MixDetailsSceneAssistant.prototype = {
 				} else {
 					this.UnLikedComplete(response);
 				}
-				if(typeof data.error !== "undefined"){
-				switch(data.error){
+				if (typeof data.error !== "undefined") {
+					switch (data.error) {
 					case 1:
-					break;
+						break;
 					case 2:
-					break;
+						break;
 					case 3:
-					break;
+						break;
 					default:
-					this.showBanner("There was an error playing that last mix!");
-					break;
-				}
+						this.showBanner("There was an error playing that last mix!");
+						break;
+					}
 				}
 			}
 		}
 		this.showSpinner(false);
 		this.writeDetails(this.mixInfo.name, this.mixInfo.description, this.mixInfo.tag_list_cache);
-		this.controller.setWidgetModel("html1", {pic: this.mixInfo.user.avatar_urls.sq56});
-		//this.setPicture(this.mixInfo.user.avatar_urls.sq56);
+		dat = {
+			pic: this.mixInfo.user.avatar_urls.sq100.toString() === "/images/avatars/sq100.jpg" ? Mojo.appPath + "/images/unknownUser.jpg" : this.mixInfo.user.avatar_urls.sq100
+		};
+		this.controller.setWidgetModel("html1", dat);
+
 		this.setUserInfo(this.mixInfo.user.login);
 	},
 
@@ -322,6 +364,15 @@ MixDetailsSceneAssistant.prototype = {
 			this.controller.modelChanged(this.cmdMenuModel, this);
 		} else {
 			this.popUp(response.responseJSON.status, response.responseJSON.notices);
+		}
+	},
+	list1Listtap: function(inSender, event) {
+		//get the actual words and forget the empty spaces
+		searchVar = event.originalEvent.target.innerText;
+		if (typeof searchVar !== "undefined") {
+			if (searchVar.length > 0) {
+				this.controller.stageController.pushScene('searchScrene', searchVar, this.userid, "Genre"); // search
+			}
 		}
 	}
 };

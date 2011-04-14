@@ -1,25 +1,99 @@
-function GridSceneAssistant(argFromPusher, pagecount, setid, loggedin, username, password, userid) {
+function GridSceneAssistant(argFromPusher, pagecount, setid, loggedin, username, password, userid, mixtype) {
 	this.loggedin = loggedin;
 	this.userid = -1;
-	this.mixCount = 4;
+	this.mixCount = 5;
 	if (loggedin) {
 		this.userid = userid;
 		this.username = username;
 		this.password = password;
-		this.mixCount = 7;
+		this.mixCount = 8;
 	}
 	this.sCount = 1;
 	this.tracks = argFromPusher;
 	this.setid = setid;
 	this.currentpage = 1;
-	this.type = "recent";
-	this.typelabel = "Latest";
+	this.pagecount = pagecount;
+	if (this.pagecount === 0) {
+		this.pagecount = 1;
+	}
+	switch (mixtype) {
+	case "featured":
+		reload = true;
+		this.sCount = 0;
+		if (this.type !== "featured") {
+			this.type = "featured";
+			this.typelabel = "Featured";
+		}
+		break;
+	case "recent":
+		reload = true;
+		this.sCount = 1;
+		if (this.type !== "recent") {
+			this.type = "recent";
+			this.typelabel = "Latest";
+		}
+		break;
+	case 'popular':
+		this.sCount = 2;
+		if (this.type !== "popular") {
+			reload = true;
+			this.type = "popular";
+			this.typelabel = "Popular";
+		}
+		// popular
+		break;
+	case 'hot':
+		// hot
+		this.sCount = 3;
+		if (this.type !== "hot") {
+			reload = true;
+			this.type = "hot";
+			this.typelabel = "Hot";
+		}
+		break;
+	case 'random':
+		// random
+		this.sCount = 4;
+		if (this.type !== "random") {
+			reload = true;
+			this.type = "random";
+			this.typelabel = "Random";
+		}
+		break;
+	case 'liked':
+		this.sCount = 5;
+		if (this.type !== "liked") {
+			reload = true;
+			this.type = "liked";
+			this.typelabel = "Liked";
+		}
+		break;
+	case 'mine':
+		this.sCount = 6;
+		if (this.type !== "mine") {
+			reload = true;
+			this.type = "mine";
+			this.typelabel = "My Mixes";
+		}
+		break;
+	case 'followed':
+		this.sCount = 7;
+		if (this.type !== "followed") {
+			reload = true;
+			this.type = "followed";
+			this.typelabel = "Following";
+		}
+		break;
+	}
 	this.loaded = false;
 	this.getNextMix = function(count, total) {
 		return count % total;
 	};
 
-	this.pagecount = Math.round(parseInt(pagecount, 0) / 10);
+	this.pagecount = Math.round(parseInt(pagecount, 0) / 12);
+	if (this.pagecount === 0) {
+		this.pagecount = 1;
+	}
 	this.writeDescription = function() {
 		if (this.typelabel == "My Mixes") {
 			this.$.divider1.setLabel(this.typelabel + " (" + this.currentpage + "/" + this.pagecount + ")"); //Latest Mixes ( 1/10)
@@ -53,7 +127,8 @@ function GridSceneAssistant(argFromPusher, pagecount, setid, loggedin, username,
 				tag: tracks[i].tag_list_cache,
 				mixInfo: tracks[i],
 				set_id: this.setid,
-				type: "mix"
+				type: "mix",
+				timeSince: new Date(tracks[i].first_published_at).toRelativeTime().toString() === "NaN years ago" ? "by " + tracks[i].user.login : new Date(tracks[i].first_published_at).toRelativeTime() + " by " + tracks[i].user.login
 			};
 		}
 		listModel = {
@@ -115,12 +190,13 @@ GridSceneAssistant.prototype = {
 				},{
 					icon: "forward",
 					command: 'fwd',
-					label: $L("Forward")
+					label: $L("Forward"),
+					disabled: this.currentpage === this.pagecount
 				}]
 			},
 				{
 				items: [{
-					label: 'Latest',
+					label: this.typelabel,
 					command: 'type'
 				}]
 			}]
@@ -138,7 +214,7 @@ GridSceneAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-					                    {
+					                {
 					label: "8tracks",
 					width: 320
 				}]
@@ -156,6 +232,11 @@ GridSceneAssistant.prototype = {
 			thm = this.cookie2.get().theme;
 		}
 
+		this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+		var defmix = "defmix:l";
+		if (this.cookie3.get()) {
+			defmix = this.cookie3.get().defaultMix;
+		}
 		this.appMenuModel = {
 			items: [
 				{
@@ -201,12 +282,56 @@ GridSceneAssistant.prototype = {
 					iconPath: thm == 'red' ? Mojo.appPath + "/images/check_mark.png" : "none"
 				}
 					]
+			},
+				            {
+				label: $L("Default Mix"),
+				items: [
+					{
+					label: "Featured",
+					command: 'defmix:f',
+					iconPath: defmix == 'defmix:f' ? Mojo.appPath + "/images/check_mark.png" : "none"
+				},
+					{
+					label: "Latest",
+					command: 'defmix:l',
+					iconPath: defmix == 'defmix:l' ? Mojo.appPath + "/images/check_mark.png" : "none"
+				},
+					{
+					label: "Popular",
+					command: 'defmix:p',
+					iconPath: defmix == 'defmix:p' ? Mojo.appPath + "/images/check_mark.png" : "none"
+				},
+					{
+					label: "Hot",
+					command: 'defmix:h',
+					iconPath: defmix == 'defmix:h' ? Mojo.appPath + "/images/check_mark.png" : "none"
+				},
+					{
+					label: "Random",
+					command: 'defmix:r',
+					iconPath: defmix == 'defmix:r' ? Mojo.appPath + "/images/check_mark.png" : "none"
+				},
+					{
+					label: "Liked",
+					command: 'defmix:liked',
+					iconPath: defmix == 'defmix:liked' ? Mojo.appPath + "/images/check_mark.png" : "none",
+					disabled: !this.loggedin
+				},
+					{
+					label: "My Mixes",
+					command: 'defmix:mm',
+					iconPath: defmix == 'defmix:mm' ? Mojo.appPath + "/images/check_mark.png" : "none",
+					disabled: !this.loggedin
+				}
+					//{ //label: "Following", //command: 'defmix:fol', //iconPath: defmix == 'defmix:fol' ? Mojo.appPath + "/images/check_mark.png" : "none", //disabled: !this.loggedin //}
+					]
 			}
 				]
 		};
 		this.controller.setupWidget(Mojo.Menu.appMenu, {},
 		this.appMenuModel);
 		this.controller.document.addEventListener("keyup", this.keyupHandler.bind(this), true);
+
 		Ares.setupSceneAssistant(this);
 	},
 	cleanup: function() {
@@ -257,7 +382,7 @@ GridSceneAssistant.prototype = {
 				this.userid = response.id;
 				this.appMenuModel.items[0].command = "logout";
 				this.appMenuModel.items[0].label = "Logout " + this.username;
-				this.mixCount = 7;
+				this.mixCount = 8;
 				this.controller.modelChanged(this.appMenuModel, this);
 			}
 		}
@@ -273,7 +398,7 @@ GridSceneAssistant.prototype = {
 			var onComplete = function(transport) {
 				if (transport.status === 200) {
 					this.currentpage = 1;
-					this.pagecount = Math.round(parseInt(transport.responseJSON.total_entries, 0) / 10);
+					this.pagecount = Math.round(parseInt(transport.responseJSON.total_entries, 0) / 12);
 					this.$.divider1.setLabel("Followed Users (" + this.currentpage + "/" + this.pagecount + ")");
 					this.controller.get('scroller2').mojo.revealTop();
 					this.cmdMenuModel.items[2].items[0].label = this.typelabel;
@@ -307,12 +432,19 @@ GridSceneAssistant.prototype = {
 	},
 	MixChange: function(direction) {
 		this.sCount = this.getNextMix(this.sCount + direction, this.mixCount);
-		if (this.sCount < 1) {
-			this.sCount = this.mixCount;
+		if (this.sCount < 0) {
+			this.sCount = this.mixCount-1;
 		} else if (this.sCount > this.mixCount) {
-			this.sCount = 1;
+			this.sCount = 0;
 		}
 		switch (this.sCount) {
+		case 0:
+			reload = true;
+			if (this.type !== "featured") {
+				this.type = "featured";
+				this.typelabel = "Featured";
+			}
+			break;
 		case 1:
 			reload = true;
 			if (this.type !== "recent") {
@@ -372,11 +504,14 @@ GridSceneAssistant.prototype = {
 				this.controller.modelChanged(this.cmdMenuModel, this);
 				this.tracks = transport.responseJSON.mixes;
 				this.setid = transport.responseJSON.mix_set_id;
-				this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 10);
+				if (this.type !== "featured") {
+					this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 12);
+				} else {
+					this.pagecount = Math.ceil(parseInt(transport.responseJSON.mix_set.total_entries, 0) / 12);
+				}
 				this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
 				this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
 				this.cmdMenuModel.items[2].items[0].label = this.typelabel;
-				//this.cmdMenuModel.items[2].items[0].command = this.type;
 				this.controller.modelChanged(this.cmdMenuModel, this);
 				this.writeDescription();
 				f = this.fillList(this.tracks, transport.responseJSON.mix_set_id);
@@ -392,6 +527,8 @@ GridSceneAssistant.prototype = {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked";
 			} else if (this.type === "mine") {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json";
+			} else if (this.type === "featured") {
+				url = "http://8tracks.com/mix_sets/featured.json?page=1";
 			} else {
 				url = "http://8tracks.com/mixes.json?page=1&sort=" + this.type;
 			}
@@ -400,7 +537,7 @@ GridSceneAssistant.prototype = {
 			var onComplete = function(transport) {
 				if (transport.status === 200) {
 					this.currentpage = 1;
-					this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 10);
+					this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 12);
 					this.$.divider1.setLabel("Followed Users (" + this.currentpage + "/" + this.pagecount + ")"); //Latest Mixes ( 1/10)
 					this.controller.get('scroller2').mojo.revealTop();
 					this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
@@ -434,6 +571,14 @@ GridSceneAssistant.prototype = {
 	popupChoose: function(event) {
 		var reload = false;
 		switch (event) {
+		case "featured":
+			reload = true;
+			this.sCount = 0;
+			if (this.type !== "featured") {
+				this.type = "featured";
+				this.typelabel = "Featured";
+			}
+			break;
 		case "l_mixes":
 			reload = true;
 			this.sCount = 1;
@@ -499,7 +644,11 @@ GridSceneAssistant.prototype = {
 				this.currentpage = 1;
 				this.tracks = transport.responseJSON.mixes;
 				this.setid = transport.responseJSON.mix_set_id;
-				this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 10);
+				if (this.type !== "featured") {
+					this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 12);
+				} else {
+					this.pagecount = Math.ceil(parseInt(transport.responseJSON.mix_set.total_entries, 0) / 12);
+				}
 				this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
 				this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
 				this.cmdMenuModel.items[2].items[0].label = this.typelabel;
@@ -519,6 +668,8 @@ GridSceneAssistant.prototype = {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked";
 			} else if (this.type === "mine") {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json";
+			} else if (this.type === "featured") {
+				url = "http://8tracks.com/mix_sets/featured.json?page=1";
 			} else {
 				url = "http://8tracks.com/mixes.json?page=1&sort=" + this.type;
 			}
@@ -527,7 +678,7 @@ GridSceneAssistant.prototype = {
 			var onComplete = function(transport) {
 				if (transport.status === 200) {
 					this.currentpage = 1;
-					this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 10);
+					this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 12);
 					this.$.divider1.setLabel("Followed Users (" + this.currentpage + "/" + this.pagecount + ")"); //Latest Mixes ( 1/10)
 					this.controller.get('scroller2').mojo.revealTop();
 					this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
@@ -581,6 +732,8 @@ GridSceneAssistant.prototype = {
 			};
 			if (this.type === "liked") {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked&page=" + this.currentpage;
+			} else if (this.type === "featured") {
+				url = "http://8tracks.com/mix_sets/featured.json?per_page=10&page=" + this.currentpage;
 			} else {
 				url = "http://8tracks.com/mixes.json?page=" + this.currentpage + "&sort=" + this.type;
 			}
@@ -608,6 +761,8 @@ GridSceneAssistant.prototype = {
 		};
 		if (this.type === "liked") {
 			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked&page=" + this.currentpage;
+		} else if (this.type === "featured") {
+			url = "http://8tracks.com/mix_sets/featured.json?page=" + this.currentpage;
 		} else {
 			url = "http://8tracks.com/mixes.json?page=" + this.currentpage + "&sort=" + this.type;
 		}
@@ -728,7 +883,8 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 			this.cookie.put({
 				username: "",
 				password: "",
-				token: 0
+				token: 0,
+				userid: -1
 			});
 			this.loggedin = false;
 			this.username = "";
@@ -761,6 +917,11 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 				onChoose: this.popupChoose,
 				placeNear: event.originalEvent.target,
 				items: [
+					{
+					label: 'Featured',
+					command: 'featured',
+					iconPath: this.type == 'featured' ? Mojo.appPath + "/images/check_mark.png" : "none"
+				},
 					{
 					label: 'Latest',
 					command: 'l_mixes',
@@ -801,6 +962,48 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 				}]
 			});
 			break;
+		case 'defmix:l':
+			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+			this.cookie3.put({
+				defaultMix: event.command
+			});
+			break;
+		case 'defmix:r':
+			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+			this.cookie3.put({
+				defaultMix: event.command
+			});
+			break;
+		case 'defmix:h':
+			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+			this.cookie3.put({
+				defaultMix: event.command
+			});
+			break;
+		case 'defmix:p':
+			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+			this.cookie3.put({
+				defaultMix: event.command
+			});
+			break;
+		case 'defmix:liked':
+			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+			this.cookie3.put({
+				defaultMix: event.command
+			});
+			break;
+		case 'defmix:mm':
+			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+			this.cookie3.put({
+				defaultMix: event.command
+			});
+			break;
+		case 'defmix:fol':
+			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+			this.cookie3.put({
+				defaultMix: event.command
+			});
+			break;
 		}
 	} else if (event.type === Mojo.Event.back) {
 		event.stop();
@@ -808,6 +1011,5 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 	} else if (event.type === Mojo.Event.forward) {
 		event.stop();
 		this.MixChange(1);
-
 	}
 };

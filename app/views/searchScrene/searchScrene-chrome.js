@@ -24,11 +24,43 @@ opus.Gizmo({
 			focusMode: "select",
 			onchange: "textField3Change",
 			type: "Palm.Mojo.TextField",
-			l: 0,
+			l: "5",
+			r: "5",
 			t: 34,
+			h: "40",
 			styles: {
 				bgColor: "",
 				bgImage: ""
+			}
+		},
+		{
+			name: "listSelector1",
+			value: "All",
+			choices: [
+				{
+					label: "All",
+					value: "q"
+				},
+				{
+					label: "Genre",
+					value: "tag"
+				},
+				{
+					label: "Creator",
+					value: "user"
+				}
+			],
+			label: "Search Criteria",
+			labelPlacement: "left",
+			onchange: "listSelector1Change",
+			type: "Palm.Mojo.ListSelector",
+			l: 0,
+			t: 0,
+			h: "25",
+			styles: {
+				padding: "10",
+				textAlign: "right",
+				borderStyle: ""
 			}
 		},
 		{
@@ -48,8 +80,8 @@ opus.Gizmo({
 			},
 			type: "Palm.Mojo.Scroller",
 			l: 0,
-			t: 120,
-			h: 292,
+			t: 133,
+			h: 279,
 			styles: {
 				cursor: "move",
 				overflow: "hidden"
@@ -82,14 +114,14 @@ opus.Gizmo({
 					],
 					useSampleData: false,
 					title: undefined,
-					itemHtml: "<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\" style=\"padding:1pt;\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <set_id=\"set_id\">\n    <tag=\"tag\">\n    <creator=\"creator\">\n    <table style=\"padding:1pt;\">\n    <tr>\n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\"></th>\n      <th id=\"col2\">\n        <dt id=\"titleText\"> #{title} </dt>\n        <dt id=\"tagText\"> #{tag}&nbsp;<i>#{creator}</i></dt>\n      </th>\n    </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
+					itemHtml: "<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\" style=\"padding:1pt;\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <set_id=\"set_id\">\n    <tag=\"tag\">\n    <creator=\"creator\">\n    <timeSince=\"timeSince\">\n    <table style=\"padding:1pt;\">\n    <tr>\n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\"></th>\n      <th id=\"col2\">\n        <dt id=\"titleText\" style=\"font-family:Tahoma;font-size:13pt;\"> #{title} </dt>\n        <dt id=\"tagText\"> #{tag}&nbsp;<i>#{creator}</i></dt>\n        <dt id=\"time\"> #{timeSince} </dt>\n      </th>\n    </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
 					onlisttap: "list1Listtap",
 					swipeToDelete: false,
 					reorderable: false,
 					type: "Palm.Mojo.List",
 					l: 0,
 					t: 0,
-					h: 212,
+					h: 262,
 					styles: {
 						textColor: "black"
 					}

@@ -27,7 +27,7 @@ opus.Gizmo({
 			name: "scroller1",
 			scrollPosition: {
 				left: 0,
-				top: -156
+				top: 0
 			},
 			type: "Palm.Mojo.Scroller",
 			l: 0,
@@ -137,8 +137,8 @@ opus.Gizmo({
 					label: "Tags",
 					type: "Palm.Mojo.Group",
 					l: 0,
-					t: 241,
-					h: 99,
+					t: 255,
+					h: 134,
 					controls: [
 						{
 							name: "row3",
@@ -149,18 +149,39 @@ opus.Gizmo({
 							h: "100%",
 							controls: [
 								{
-									name: "tags",
-									kind: "title",
-									label: "Tags",
-									type: "Palm.Mojo.Label",
+									name: "scroller3",
+									scrollPosition: {
+										left: 0,
+										top: 0
+									},
+									type: "Palm.Mojo.Scroller",
 									l: 0,
 									t: 0,
 									h: "100%",
 									styles: {
-										textColor: "",
-										textAlign: "center",
-										fontFamily: "prelude medium"
-									}
+										cursor: "move",
+										overflow: "hidden"
+									},
+									controls: [
+										{
+											name: "list1",
+											dropTarget: true,
+											items: [
+												{}
+											],
+											useSampleData: false,
+											title: undefined,
+											itemHtml: "<table x-mojo-tap-highlight=\"immediate\" style=\"width:100%;\">\n  <tr>\n    <th>\n      <div class=\"palm-row grid-cell\" x-mojo-touch-feedback=\"immediate\">\n       <id=\"tag1\" style=\"font-size:10pt;border:solid; border-color:white; -webkit-border-radius:5pt;padding:2pt;\">\n          #{tag1}\n      </div>  \n    </th>\n    <th>\n      <div class=\"palm-row grid-cell\" x-mojo-touch-feedback=\"immediate\">\n        <id=\"tag2\" style=\"font-size:10pt;border:solid; border-color:white; -webkit-border-radius:5pt;padding:2pt;\">\n          #{tag2}\n     </div>\n    </th>\n    <th>\n      <div class=\"palm-row grid-cell\" x-mojo-touch-feedback=\"immediate\">\n        <id=\"tag3\" style=\"font-size:10pt;border:solid; border-color:white; -webkit-border-radius:5pt;padding:2pt;\">\n          #{tag3}\n      </div>  \n    </th>\n  </tr>\n</table>",
+											onlisttap: "list1Listtap",
+											swipeToDelete: false,
+											reorderable: false,
+											rowTapHighlight: false,
+											type: "Palm.Mojo.List",
+											l: 0,
+											t: 0,
+											h: 100
+										}
+									]
 								}
 							]
 						}

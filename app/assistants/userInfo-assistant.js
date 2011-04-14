@@ -3,38 +3,32 @@ function UserInfoAssistant(argFromPusher) {
 	this.token = 0;
 	this.mixInfo = 0;
 	this.loggedin = false;
+	this.type = 'uc_mix';
 	this.cookie = new Mojo.Model.Cookie("credentials");
 	if (this.cookie.get()) {
 		this.username = this.cookie.get().username;
 		this.password = this.cookie.get().password;
+		this.userid = this.cookie.get().userid;
 		if (this.cookie.get().username !== "") {
 			this.loggedin = true;
+		}else{
+		this.userid = -1;
 		}
-	}else{
+	} else {
 		this.setid = -1;
 		this.username = "";
-		this.password= "";
+		this.password = "";
+		this.userid = -1;
 	}
 	this.fillList = function(tracks) {
 		var list = new Array(tracks.length);
 		for (var i = 0; i < tracks.length; i++) {
-					var name = tracks[i].name;
-			var tag = tracks[i].tag_list_cache;
-			if (name !== null) {
-				if (name.length > 30) {
-					name = name.substring(0, 30) + "...";
-				}
-			}
-			if (tag !== null) {
-				if (tag.length > 30) {
-					tag = tag.substring(0, 30) + "...";
-				}
-			}
 			list[i] = {
 				title: tracks[i].name,
 				leftImage: tracks[i].cover_urls.sq56.toString() === "/images/mix_covers/sq56.gif" ? Mojo.appPath + "/images/no_image.png" : tracks[i].cover_urls.sq56,
 				tag: tracks[i].tag_list_cache,
-				mixInfo: tracks[i]
+				mixInfo: tracks[i],
+				timeSince: new Date(tracks[i].first_published_at).toRelativeTime() === "NaN years ago" ? "by " + tracks[i].user.login : new Date(tracks[i].first_published_at).toRelativeTime() + " by " + tracks[i].user.login
 			};
 		}
 		listModel = {
@@ -45,6 +39,9 @@ function UserInfoAssistant(argFromPusher) {
 				return listModel;
 			}
 		};
+	};
+	this.setDividerLabel = function(label) {
+		this.$.divider1.setLabel(label);
 	};
 	this.writeUserDetails = function(info1, info2) {
 		if (info1 === null) {
@@ -70,9 +67,20 @@ UserInfoAssistant.prototype = {
 			visible: true,
 			items: [
 				{
-				items: [{},{},{
-					label: $L('Follow'),
-					command: 'flw'
+				items: [
+					{
+					items: [{
+						label: $L('More'),
+						command: 'lm'
+					}]
+				},
+					{},
+					{
+					items: [{
+						label: $L('Follow'),
+						command: 'flw',
+						disabled: !this.loggedin
+					}]
 				}]
 			}]
 		};
@@ -101,25 +109,31 @@ UserInfoAssistant.prototype = {
 			menuClass: 'no-fade'
 		},
 		this.feedMenuModel);
-		//this.controller.get("picture1").style.cssText += "-webkit-border-radius:12px";
+
 		Ares.setupSceneAssistant(this);
 	},
 	cleanup: function() {
 		Ares.cleanupSceneAssistant(this);
 	},
-	activate: function() {
-		this.cookie2 = new Mojo.Model.Cookie("prefs");
-		if (this.cookie2.get()) {
-			props = themeLookup(this.cookie2.get().theme);
-			this.controller.get('userInfo').style.backgroundImage = props.URL;
-			this.$.label3.style.addStyles({
-				textColor: props.textColor
-			});
-			this.$.list1.style.addStyles({textColor: props.textColor});
+	activate: function(data) {
+		if (typeof data === "undefined") {
+			this.cookie2 = new Mojo.Model.Cookie("prefs");
+			if (this.cookie2.get()) {
+				props = themeLookup(this.cookie2.get().theme);
+				this.controller.get('userInfo').style.backgroundImage = props.URL;
+				this.$.label3.style.addStyles({
+					textColor: props.textColor
+				});
+				this.$.list1.style.addStyles({
+					textColor: props.textColor
+				});
+			}
+			this.showSpinner(false);
+			this.getUserInfo();
+			this.listMixes();
+		} else {
+			this.showSpinner(false);
 		}
-		this.showSpinner(false);
-		this.getUserInfo();
-		this.listMixes();
 	},
 	showSpinner: function(show) {
 		if (!show) {
@@ -143,15 +157,29 @@ UserInfoAssistant.prototype = {
 			}
 		};
 		var onFailure = function(transport) {};
-		url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json";
+		url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?per_page=65";
+		this.request(url, onComplete.bind(this), onFailure.bind(this));
+	},
+	listLikedMixes: function() {
+		var onComplete = function(transport) {
+			if (transport.status === 200) {
+				var mixes = transport.responseJSON.mixes;
+				f = this.fillList(mixes);
+				this.$.divider1.setLabel("Liked Mixes (" + mixes.length + ")");
+				this.controller.setWidgetModel("list1", f.getList());
+			}
+		};
+		var onFailure = function(transport) {};
+		url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?view=liked&per_page=65";
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	getUserInfo: function() {
 		var onComplete = function(transport) {
 			if (transport.status === 200) {
 				var image = transport.responseJSON.user.avatar_urls.sq100.toString() === "/images/avatars/sq100.jpg" ? Mojo.appPath + "/images/unknownUser.jpg" : transport.responseJSON.user.avatar_urls.sq100;
-				//this.$.picture1.setSrc(image);
-				this.controller.setWidgetModel("html1", {pic: image});
+				this.controller.setWidgetModel("html1", {
+					pic: image
+				});
 				this.writeUserDetails(transport.responseJSON.user.bio_html, "");
 				if (!transport.responseJSON.user.followed_by_current_user) {
 					this.cmdMenuModel.items[0].items[2].label = "Follow";
@@ -206,7 +234,7 @@ UserInfoAssistant.prototype = {
 		var onComplete = function(transport) {
 			if (transport.status == 200) {
 				this.showSpinner(false);
-				this.controller.stageController.pushScene('player', this.mixInfo, this.token, transport.responseJSON, this.mixInfo.cover_urls.original, this.setid, this.username.toLowerCase(), this.username, this.password);
+				this.controller.stageController.pushScene('player', this.mixInfo, this.token, transport.responseJSON, this.mixInfo.cover_urls.max200, this.setid, this.userid, this.username, this.password, this.mixInfo.liked_by_current_user);
 			}
 		};
 		var onFailure = function(transport) {
@@ -262,6 +290,23 @@ UserInfoAssistant.prototype = {
 		} else {
 			this.popUp(transport.responseJSON.status, transport.responseJSON.notices);
 		}
+	},
+	popupChoose: function(response) {
+		switch (response) {
+		case 'ul_mix':
+			// user liked mixes
+			if (this.type !== 'ul_mix') {
+				this.listLikedMixes();
+			}
+			break;
+		case 'uc_mix':
+			// user created mixes
+			if (this.type !== 'uc_mix') {
+				this.listMixes();
+			}
+			break;
+		}
+		this.type = response;
 	}
 };
 
@@ -274,6 +319,23 @@ UserInfoAssistant.prototype.handleCommand = function(event) {
 			break;
 		case 'uflw':
 			this.unFollowUser();
+			break;
+		case 'lm':
+			this.controller.popupSubmenu({
+				onChoose: this.popupChoose,
+				placeNear: event.originalEvent.target,
+				items: [
+					{
+					label: "Created Mixes",
+					command: 'uc_mix',
+					iconPath: this.type == 'uc_mix' ? Mojo.appPath + "/images/check_mark.png" : "none"
+				},
+					{
+					label: "Liked Mixes",
+					command: 'ul_mix',
+					iconPath: this.type == 'ul_mix' ? Mojo.appPath + "/images/check_mark.png" : "none"
+				}]
+			});
 			break;
 		}
 	}

@@ -8,6 +8,9 @@
 {
 	"source": "lib/justType.js"
 },
+{
+	"source": "lib/timeSince.js"
+},
 	{
 	"source": "app/assistants/main-assistant.js"
 },

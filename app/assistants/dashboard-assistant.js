@@ -133,10 +133,12 @@ DashboardAssistant.prototype = {
 		}
 	},
 	
-	relaunchMusicPlayer: function(){
+	relaunch8tracks: function(){
 		var parameters = {
 			id:'com.mycompany.8tracks',
-			params: {}
+			params: {
+				focus: true
+			}
 		};
 		return new Mojo.Service.Request(
 			'palm://com.palm.applicationManager',
@@ -159,7 +161,7 @@ DashboardAssistant.prototype = {
 			}
 		} else {
 			if (!this.locked) {
-				//ret = this.relaunchMusicPlayer();
+				this.relaunch8tracks();
 			}
 		}
 	}

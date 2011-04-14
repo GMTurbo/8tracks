@@ -149,7 +149,7 @@ PlayerAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-				{
+					{
 					label: this.mixID.name,
 					width: 320
 				}]
@@ -188,7 +188,7 @@ PlayerAssistant.prototype = {
 		} else {
 			nmpState = this.cookie3.get().answer;
 		}
-		
+
 		this.appMenuModel = {
 			items: [
 				{
@@ -235,6 +235,18 @@ PlayerAssistant.prototype = {
 			onSuccess: this.handleheadset.bind(this)
 		});
 
+		this.bluetoothService = new Mojo.Service.Request('palm://com.palm.keys/media', {
+			method: 'status',
+			parameters: {
+				'subscribe': true
+			},
+			onFailure: function() {
+				Mojo.Log.error("Could not subscribe to headset events");
+			},
+			onSuccess: this.handleBluetooth.bind(this)
+		});
+
+
 		if (this.audio1.currentSrc.length > 0) {
 			this.removeListeners();
 			this.audio1.pause();
@@ -242,20 +254,29 @@ PlayerAssistant.prototype = {
 			this.audio1 = new Audio();
 		}
 		this.setupListeners();
-		this.libs = MojoLoader.require({ name: "mediaextension", version: "1.0"});
+		this.libs = MojoLoader.require({
+			name: "mediaextension",
+			version: "1.0"
+		});
 		this.extObj = this.libs.mediaextension.MediaExtension.getInstance(this.audio1);
 		this.extObj.audioClass = "media";
 		//Mojo.Event.listen(this.controller.get('pic'), Mojo.Event.hold, this.picture1Hold.bind(this));
 		Ares.setupSceneAssistant(this);
 	},
 	cleanup: function() {
+		DashPlayerInstance.cleanup();
+		DashPlayerInstance = 0;
 		this.audio1.pause();
 		this.removeListeners();
+
 		this.audio1 = 0;
 		if (this.headsetService) {
 			this.headsetService.cancel();
 		}
-		DashPlayerInstance = 0;
+		if (this.bluetoothService) {
+			this.bluetoothService.cancel();
+		}
+
 		Ares.cleanupSceneAssistant(this);
 	},
 	activate: function() {
@@ -269,9 +290,6 @@ PlayerAssistant.prototype = {
 			});
 		}
 		this.$.picture1.setSrc(this.mphoto);
-		//info ={
-		//	pic: this.mphoto
-		//};
 		//this.controller.setWidgetModel("html2", {pic: this.mphoto});
 		songprop = {
 			skipped: false,
@@ -287,7 +305,7 @@ PlayerAssistant.prototype = {
 		}
 		this.audio1.src = this.trackinfo.set.track.url;
 		this.audio1.load();
-		
+
 		DashPlayerInstance = new DashboardPlayer();
 		DashPlayerInstance.setSkipEvent(this.skipTrack.bind(this));
 		DashPlayerInstance.setLikeToggleEvent(this.setLikeStateCurrent.bind(this));
@@ -313,12 +331,38 @@ PlayerAssistant.prototype = {
 		});
 	},
 	handleheadset: function(payload) {
-		if (payload.state == "double_click") {
-			this.skipTrack();
-		} else if (payload.state == "single_click") {
-			this.toggleSongState();
+		switch(payload.state){
+			case "double_click":
+				this.skipTrack();
+				break;
+			case "single_click":
+				this.toggleSongState();
+				break;
+			}
+	},
+
+	handleBluetooth: function(event) {
+		var state = event.state;
+
+		if (state) {
+			if (state === "down") {
+				var key = event.key;
+				switch (key) {
+					// this looks strange, but there may be events we need to translate
+				case "next":
+					this.skipTrack();
+					break;
+				case "pause":
+					this.songState(false);
+					break;
+				case "play":
+					this.songState(true);
+					break;
+				}
+			}
 		}
 	},
+
 	modifyListElementDuration: function() {
 		if (this.audio1.duration.toString() !== "Infinity" || this.audio1.duration.toString() !== "undefined") {
 			if (this.list[0].duration === "...") {
@@ -380,8 +424,12 @@ PlayerAssistant.prototype = {
 				this.model.progress = 0;
 				this.controller.modelChanged(this.model, this);
 				this.mixID = transport.responseJSON.next_mix;
+				this.liked = this.mixID.liked_by_current_user;
 				this.feedMenuModel.items[0].items[1].label = this.mixID.name;
+				this.appMenuModel.items[0].items[1].label = this.mixID.liked_by_current_user ? "Unlike Mix" : "Like Mix";
+				this.appMenuModel.items[0].items[1].command = this.mixID.liked_by_current_user ? "unlike" : "like";
 				this.controller.modelChanged(this.feedMenuModel, this);
+				this.controller.modelChanged(this.appMenuModel, this);
 				this.setid = this.mixID.id;
 				var onComplete = function(transport) {
 					if (transport.status == 200) {
@@ -470,10 +518,13 @@ PlayerAssistant.prototype = {
 			this.showSpinner(false);
 			this.Popup("Oops", "No more skips allowed...");
 		};
-		var url = "http://8tracks.com/sets/46048603/skip.json?mix_id=" + this.mixID.id;
+		var url = "http://8tracks.com/sets/" + this.token + "/skip.json?mix_id=" + this.mixID.id;
 		this.requestNext(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	askForNMPref: function() {
+		this.sound.src = Mojo.appPath + "/sounds/error.mp3";
+		this.sound.load();
+		this.sound.play();
 		this.controller.showAlertDialog({
 			onChoose: this.setMixPref.bind(this),
 			title: "Nex Mix Preference",
@@ -498,9 +549,8 @@ PlayerAssistant.prototype = {
 			this.cookie3.put({
 				answer: 'autoplay'
 			});
-		//	this.appMenuModel.items[2].label = "Auto-play Next Mix";
 			this.appMenuModel.items[2].command = 'return';
-			this.appMenuModel.items[2].iconPath = Mojo.appPath + "/images/check_mark.png";//false;
+			this.appMenuModel.items[2].iconPath = Mojo.appPath + "/images/check_mark.png"; //false;
 			this.controller.modelChanged(this.appMenuModel, this);
 			if (typeof noskip === "undefined") {
 				this.showBanner("Selection Saved");
@@ -512,10 +562,8 @@ PlayerAssistant.prototype = {
 			this.cookie3.put({
 				answer: 'return'
 			});
-			//this.appMenuModel.items[2].label = "Auto-play Next Mix: Off";
 			this.appMenuModel.items[2].command = 'autoplay';
 			this.appMenuModel.items[2].iconPath = "";
-			//this.appMenuModel.items[2].iconPath = Mojo.appPath + "images\check_mark.png";//false;
 			this.controller.modelChanged(this.appMenuModel, this);
 			if (typeof noskip === "undefined") {
 				this.showBanner("Selection Saved");
@@ -565,7 +613,7 @@ PlayerAssistant.prototype = {
 		var onFailure = function(transport) {
 			this.Popup("Oops", "Error getting next track...");
 		};
-		var url = "http://8tracks.com/sets/46048603/next.json?mix_id=" + this.mixID.id;
+		var url = "http://8tracks.com/sets/" + this.token + "/next.json?mix_id=" + this.mixID.id;
 		this.requestNext(url, onComplete.bind(this), onFailure.bind(this));
 	},
 
@@ -584,10 +632,10 @@ PlayerAssistant.prototype = {
 	},
 	picture1Hold: function(inSender, event) {
 		var onSucces = function() {
-			this.Popup("Yay", "file downloaded");
+			this.showBanner("Image Saved to Device");
 		};
 		var onFailure = function() {
-			this.Popup("Crap", "didn't download");
+			this.showBanner("Download Failed");
 		};
 		this.downloadImage(this.mphoto, onSucces.bind(this), onFailure.bind(this));
 		event.stop();
@@ -636,10 +684,9 @@ PlayerAssistant.prototype = {
 		if (!this.lastsong) {
 			this.nextTrack();
 		} else {
-			data = {
+			this.controller.stageController.popScene({
 				error: 1
-			};
-			this.controller.stageController.popScene(data);
+			});
 		}
 	},
 	trackPlay: function(event) {
@@ -759,7 +806,7 @@ PlayerAssistant.prototype = {
 			onSuccess: onSuccess.bind(this)
 		});
 	},
-	setLikeStateCurrent: function(state){
+	setLikeStateCurrent: function(state) {
 		song = this.tracks[this.tracks.length - 1];
 		this.songProps[this.songProps.length - 1].liked = state;
 		this.setLikeState(song, !state);

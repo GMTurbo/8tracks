@@ -1,0 +1,14 @@
+.horizontal {
+    display: -webkit-inline-box;
+    -webkit-box-orient: horizontal;
+    width: 100%;
+}
+
+.shared-text {
+     width: 55%;
+}
+
+.shared-list {
+    margin-left: 3%;
+    width: 42%;
+}

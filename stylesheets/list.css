@@ -1,28 +1,34 @@
-@charset "utf-8";
+//@charset "utf-8";
 
-dt#titleText {
-	font-size: 14pt;
-	font-family: "Prelude Medium", sans-serif;
+.title#titleText {
+	font-family: 'Times New Roman', sans-serif;
 	padding: 2pt;
 	vertical-align: top;
+	font-size: 10pt;
 }
 
 dt#tagText {
 	font-family: Helvetica, Georgia, sans-serif;
-	color: #777777;
+	//color: #777777;
+	color: #545454;
 	font-size: 11pt;
 }
 
-#col2 {
+th#col2 {
 	padding: 2pt;
 	text-align: left;
 	vertical-align: top;
 }
 
-#col1 {
+th#col1 {
  vertical-align: top;
 }
-
+dt#time {
+	text-align: left;
+	font-family: Impact;
+	color: #767676;
+	font-size: 10pt;
+}
 .floatleft {
 	float: left;
 	vertical-align: text-top;
@@ -34,13 +40,18 @@ dt#tagText {
 	
 dt#artistText {
 	font-family: Georgia, sans-serif;
-	color: #777777;
+	color: #545454;
 	font-size: 12pt;
+}
+dt#length {
+	font-family: Georgia, sans-serif;
+	color: #767676;
+	font-size: 11pt;
 }
 div#currentSong {
 	font-family: Helvetica, sans-serif;
 	font-style: italic;
-	font-size: 16pt;
+	font-size: 14pt;
 }
 div#oldSong {
 	font-family: Arial, sans-serif;

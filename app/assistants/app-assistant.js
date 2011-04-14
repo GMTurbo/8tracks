@@ -42,10 +42,10 @@ AppAssistant.prototype.loadDashboard = function(stageController) {
 	if (DashPlayerInstance !== 0) {
 		if (DashPlayerInstance.audio() !== 0) {
 			stageController.pushScene('dashboard', DashPlayerInstance);
-		} else{
+		} else {
 			Mojo.Controller.getAppController().closeStage('dashboard');
 		}
-	}else{
+	} else {
 		Mojo.Controller.getAppController().closeStage('dashboard');
 	}
 };
@@ -57,5 +57,15 @@ AppAssistant.prototype.handleLaunch = function(launchParams) {
 	} else if (launchParams.Play) {
 		justTypeInstance = new justType();
 		justTypeInstance.setup("play", launchParams.Play.split("%20"));
+	} else if (launchParams.focus) {
+		Mojo.Controller.stageController.activate();
 	}
+};
+
+AppAssistant.prototype.onFocusHandler = function() {
+	this.lostFocus = false;
+};
+
+AppAssistant.prototype.onBlurHandler = function() {
+	this.lostFocus = true;
 };

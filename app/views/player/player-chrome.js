@@ -52,8 +52,8 @@ opus.Gizmo({
 			type: "Palm.Picture",
 			l: 0,
 			w: "100%",
-			t: 0,
-			h: "100%"
+			t: 57,
+			h: 132
 		},
 		{
 			name: "html1",
@@ -112,14 +112,14 @@ opus.Gizmo({
 					],
 					useSampleData: false,
 					title: undefined,
-					itemHtml: "<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\" style=\"padding:1pt;\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <duration=\"duration\">\n    <currentsong=\"song\">\n    <oldsong=\"song\">\n    <skipped=\"skipped\">\n    <currentartist=\"tag\">\n    <table>\n      <tr>\n        <th id=\"col2\" style=\"width:300px;\">\n          <dt> \n              <div id=\"currentSong\"> #{currentsong}</div> \n              <div id=\"oldSong\"> #{oldsong} </div>\n              <div id=\"skippedSong\"> #{skipped} </div>\n          </dt>\n          <dt id=\"artistText\"> #{currentartist}&nbsp;-&nbsp;#{duration}</dt>\n        </th>\n        <th id=\"col1\">\n            <img src=\"#{likeImage}\" style=\"float:right;\">\n        </th>\n      </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
+					itemHtml: "<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\" style=\"padding:1pt;\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <duration=\"duration\">\n    <currentsong=\"song\">\n    <oldsong=\"song\">\n    <skipped=\"skipped\">\n    <currentartist=\"tag\">\n    <table>\n      <tr>\n        <th id=\"col2\" style=\"width:300px;\">\n          <dt> \n              <div id=\"currentSong\" style=\"font-style:italic;\"> #{currentsong}</div> \n              <div id=\"oldSong\" style=\"font-family:Georgia;\"> #{oldsong} </div>\n              <div id=\"skippedSong\" style=\"font-family:Georgia;\"> #{skipped} </div>\n          </dt>\n          <dt id=\"artistText\"> #{currentartist} </dt>\n          <dt id=\"length\"> #{duration}</dt>\n        </th>\n        <th id=\"col1\">\n            <img src=\"#{likeImage}\" style=\"float:right;\">\n        </th>\n      </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
 					onlisttap: "list1Listtap",
 					swipeToDelete: false,
 					reorderable: false,
 					type: "Palm.Mojo.List",
 					l: 0,
 					t: 0,
-					h: 252,
+					h: 212,
 					styles: {
 						textColor: "black",
 						bgImage: ""
