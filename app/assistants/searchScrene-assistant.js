@@ -12,6 +12,7 @@ function SearchScreneAssistant(argFromPusher, userid, criteria) {
 			break;
 		}
 	}
+
 	this.popUp = function(title, message) {
 		this.controller.showAlertDialog({
 			title: title,
@@ -116,12 +117,20 @@ SearchScreneAssistant.prototype = {
 			this.$.list1.style.addStyles({
 				textColor: props.textColor
 			});
+			this.$.listSelector1.style.addStyles({
+				textColor: props.textColor
+			});
 		}
+		if(typeof data!== "undefined"){
+			if(typeof data.keyword !== "undefined"){
+				this.character = data.keyword;
+			}
+		} 
 		this.controller.get('textField3').mojo.focus();
 		this.controller.get('textField3').mojo.setValue(this.character);
 		this.$.listSelector1.setValue(this.criteria);
 		this.showSpinner(false);
-		if (this.character !== "" && typeof data === "undefined") {
+		if ((this.character !== "" && typeof data === "undefined") || (this.character !== "" && typeof data.keyword !== "undefined")) {
 			this.search();
 		}
 	},

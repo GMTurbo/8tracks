@@ -10,7 +10,7 @@
 dt#tagText {
 	font-family: Helvetica, Georgia, sans-serif;
 	//color: #777777;
-	color: #545454;
+	color: #767676;
 	font-size: 11pt;
 }
 
@@ -26,17 +26,25 @@ th#col1 {
 dt#time {
 	text-align: left;
 	font-family: Impact;
-	color: #767676;
+	color: #545454;
 	font-size: 10pt;
 }
 .floatleft {
 	float: left;
 	vertical-align: text-top;
 	margin: 2px;
-	width: 60px;
-	height: 60px;
+	width: 70px;
+	height: 70px;
 	-webkit-border-radius:8px;
+	-webkit-transform:rotate(-5deg);
+	//-webkit-transition: -webkit-transform .5s ease-out;
+	//z-index:-1;
+	border:none;
 }
+//.floatleft:active,.floatleft:focus{
+	//z-index:10;
+//	-webkit-transform:rotate(2deg) scale(1,1);
+//}
 	
 dt#artistText {
 	font-family: Georgia, sans-serif;

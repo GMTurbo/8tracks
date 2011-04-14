@@ -49,7 +49,7 @@ opus.Gizmo({
 				},
 				{
 					name: "html1",
-					content: "<img src=#{pic} style=\"-webkit-border-radius: 20px;display:block; margin-left:auto; margin-right:auto; height:100%;\" class=\"pic\"></img>",
+					content: "<style>\n .pic {\n    display:block;\n    margin-left:auto;\n    margin-right:auto;\n    height: 100%;\n    -webkit-border-radius:20px;\n    -webkit-transform:rotate(-5deg);\n    -webkit-transition: -webkit-transform .5s ease-out;\n    border:none;\n}\n.pic:active,.pic:focus{\n    z-index:10;\n    -webkit-transform:rotate(0deg) scale(1.2,1.2);\n}\n</style>\n  \n<img src=#{pic} class=\"pic\"></img>",
 					type: "Palm.Mojo.Html",
 					l: 0,
 					t: 16,

@@ -260,7 +260,6 @@ PlayerAssistant.prototype = {
 		});
 		this.extObj = this.libs.mediaextension.MediaExtension.getInstance(this.audio1);
 		this.extObj.audioClass = "media";
-		//Mojo.Event.listen(this.controller.get('pic'), Mojo.Event.hold, this.picture1Hold.bind(this));
 		Ares.setupSceneAssistant(this);
 	},
 	cleanup: function() {
@@ -441,7 +440,6 @@ PlayerAssistant.prototype = {
 						this.tracks = new Array();
 						this.tracks.push(response.set.track);
 						this.trackinfo = response;
-						DashPlayerInstance.update(this.audio1, this.mphoto, this.trackinfo);
 						this.lastsong = false;
 						this.songProps = [];
 						this.songProps = new Array();
@@ -454,6 +452,7 @@ PlayerAssistant.prototype = {
 						this.songProps.push(songprop);
 						this.listindex = 0;
 						this.songstate = 1;
+						DashPlayerInstance.update(this.audio1, this.mphoto, this.trackinfo);
 						this.showBanner("Now Playing: " + transport.responseJSON.set.track.performer + " - " + transport.responseJSON.set.track.name);
 						this.populateList();
 						this.writeDescription();

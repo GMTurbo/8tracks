@@ -214,7 +214,7 @@ GridSceneAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-					                {
+					{
 					label: "8tracks",
 					width: 320
 				}]
@@ -323,7 +323,6 @@ GridSceneAssistant.prototype = {
 					iconPath: defmix == 'defmix:mm' ? Mojo.appPath + "/images/check_mark.png" : "none",
 					disabled: !this.loggedin
 				}
-					//{ //label: "Following", //command: 'defmix:fol', //iconPath: defmix == 'defmix:fol' ? Mojo.appPath + "/images/check_mark.png" : "none", //disabled: !this.loggedin //}
 					]
 			}
 				]
@@ -390,11 +389,11 @@ GridSceneAssistant.prototype = {
 			//this.showBanner("Just Type to Search...");
 			this.loaded = true;
 		}
-		if (this.type != "followed") {
+		if (this.type != "followed" && typeof response ==="undefined") {
 			f = this.fillList(this.tracks);
 			this.controller.setWidgetModel("list1", f.getList());
 			this.writeDescription();
-		} else {
+		} else if(typeof response.search === "undefined"){
 			var onComplete = function(transport) {
 				if (transport.status === 200) {
 					this.currentpage = 1;
@@ -433,7 +432,7 @@ GridSceneAssistant.prototype = {
 	MixChange: function(direction) {
 		this.sCount = this.getNextMix(this.sCount + direction, this.mixCount);
 		if (this.sCount < 0) {
-			this.sCount = this.mixCount-1;
+			this.sCount = this.mixCount - 1;
 		} else if (this.sCount > this.mixCount) {
 			this.sCount = 0;
 		}
@@ -715,6 +714,7 @@ GridSceneAssistant.prototype = {
 		if (this.currentpage - 1 > 0) {
 			this.currentpage -= 1;
 			var onComplete = function(transport) {
+				this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 12);
 				this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
 				this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
 				this.controller.modelChanged(this.cmdMenuModel, this);
@@ -740,9 +740,13 @@ GridSceneAssistant.prototype = {
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		}
 	},
+	FilterList: function(event) {
+		b = event;
+	},
 	getNextPage: function() {
 		this.currentpage += 1;
 		var onComplete = function(transport) {
+			this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 12);
 			this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
 			this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
 			this.controller.modelChanged(this.cmdMenuModel, this);
@@ -773,6 +777,35 @@ GridSceneAssistant.prototype = {
 			this.controller.stageController.pushScene('mixDetailsScene', event.item.mixInfo, event.item.set_id, this.userid, this.username, this.password);
 		} else {
 			this.controller.stageController.pushScene('userInfo', event.item.userinfo, this.userid, this.username, this.password);
+		}
+	},
+	list1Listdelete: function(inSender, event) {
+		if(this.type !== "liked"){
+			event.stop();
+			}else{
+			this.UnLike(event.item.mixInfo.id);
+		}
+	},
+		UnLike: function(mixid) {
+		var onFailure = function(transport) {
+			this.popUp("Error", "Could not remove mix to your liked mix. Try to login again");
+		};
+		var postdata = "login=" + this.username + "&password=" + this.password;
+		url = "http://8tracks.com/mixes/" + mixid + "/unlike.json";
+		var myAjax = new Ajax.Request(url, {
+			method: "post",
+			requestHeader: postdata,
+			onComplete: this.UnLikedComplete.bind(this),
+			onFailure: onFailure.bind(this)
+		});
+	},
+	UnLikedComplete: function(response) {
+		if (response.responseJSON.status === "200 OK") {
+			if (typeof response.responseJSON.bypass === "undefined") {
+				this.showBanner("Mix removed from your Liked list");
+			}
+		} else {
+			this.showBanner(response.responseJSON.status, response.responseJSON.notices);
 		}
 	}
 };

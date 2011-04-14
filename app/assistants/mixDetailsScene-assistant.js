@@ -57,8 +57,8 @@ function MixDetailsSceneAssistant(argFromPusher, setid, userid, username, passwo
 				}
 			};
 		};
-
 		this.controller.setWidgetModel("list1", fillTagGrid(tags.split(",")).getList());
+		
 	};
 	this.setPicture = function(picture) {
 		this.controller.setWidgetModel("html1", {
@@ -165,7 +165,7 @@ MixDetailsSceneAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-					                {
+					                                                                                                                    {
 					label: this.mixInfo.name,
 					width: 320
 				}]
@@ -199,9 +199,9 @@ MixDetailsSceneAssistant.prototype = {
 		if (this.cookie2.get()) {
 			props = themeLookup(this.cookie2.get().theme);
 			this.controller.get('mixDetailsScene').style.backgroundImage = props.URL;
-			this.$.list1.style.addStyles({
-				textColor: props.textColor
-			});
+			//this.$.list1.style.addStyles({
+			//textColor: props.textColor
+			//});
 			this.$.name.style.addStyles({
 				textColor: props.textColor
 			});
@@ -371,7 +371,20 @@ MixDetailsSceneAssistant.prototype = {
 		searchVar = event.originalEvent.target.innerText;
 		if (typeof searchVar !== "undefined") {
 			if (searchVar.length > 0) {
-				this.controller.stageController.pushScene('searchScrene', searchVar, this.userid, "Genre"); // search
+				found = function(arr, string) {
+					for (i = 0; i < arr.length; i++) {
+						if (arr[i].sceneName === string) {
+							return true;
+						}
+					}
+					return false;
+				};
+
+				if (found(this.controller.stageController.getScenes(), 'searchScrene')) {
+					this.controller.stageController.popScenesTo('searchScrene', {keyword: searchVar}); // prevent recursion
+				} else {
+					this.controller.stageController.pushScene('searchScrene', searchVar, this.userid, "Genre"); // search
+				}
 			}
 		}
 	}

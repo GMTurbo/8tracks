@@ -62,8 +62,7 @@ SplashAssistant.prototype = {
 							this.cookie.put({
 							username: this.username,
 							password: this.password,
-							token: transport.responseJSON.auth_token,
-							userid: transport.responseJSON.current_user.id
+							userid: transport.responseJSON.user.id
 							});
 						}
 					}
