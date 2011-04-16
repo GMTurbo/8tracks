@@ -226,16 +226,16 @@ GridSceneAssistant.prototype = {
 		},
 		this.feedMenuModel);
 
-		this.cookie2 = new Mojo.Model.Cookie("prefs");
+		cookie2 = new Mojo.Model.Cookie("prefs");
 		var thm = "none";
-		if (this.cookie2.get()) {
-			thm = this.cookie2.get().theme;
+		if (cookie2.get()) {
+			thm = cookie2.get().theme;
 		}
 
-		this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+		cookie3 = new Mojo.Model.Cookie("defaultMix");
 		var defmix = "defmix:l";
-		if (this.cookie3.get()) {
-			defmix = this.cookie3.get().defaultMix;
+		if (cookie3.get()) {
+			defmix = cookie3.get().defaultMix;
 		}
 		this.appMenuModel = {
 			items: [
@@ -283,7 +283,7 @@ GridSceneAssistant.prototype = {
 				}
 					]
 			},
-				            {
+			{
 				label: $L("Default Mix"),
 				items: [
 					{
@@ -381,6 +381,8 @@ GridSceneAssistant.prototype = {
 				this.userid = response.id;
 				this.appMenuModel.items[0].command = "logout";
 				this.appMenuModel.items[0].label = "Logout " + this.username;
+				this.appMenuModel.items[3].items[5].disabled = false;
+				this.appMenuModel.items[3].items[6].disabled = false;
 				this.mixCount = 8;
 				this.controller.modelChanged(this.appMenuModel, this);
 			}
@@ -393,7 +395,7 @@ GridSceneAssistant.prototype = {
 			f = this.fillList(this.tracks);
 			this.controller.setWidgetModel("list1", f.getList());
 			this.writeDescription();
-		} else if(typeof response.search === "undefined"){
+		} else if(typeof response.search === "undefined" && typeof response.username === "undefined"){
 			var onComplete = function(transport) {
 				if (transport.status === 200) {
 					this.currentpage = 1;
@@ -414,6 +416,14 @@ GridSceneAssistant.prototype = {
 			};
 			url = "http://8tracks.com/users/" + this.userid + "/follows_users.json";
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
+		}
+		
+		if(typeof response !== "undefined"){
+			if(typeof response.liked !== "undefined"){
+					if(this.type === "liked"){
+						this.popupChoose(mixKey("liked")); // repopulate liked list
+					}
+			}
 		}
 		this.showSpinner(false);
 	},
@@ -614,9 +624,9 @@ GridSceneAssistant.prototype = {
 			}
 			break;
 		case 'liked':
+			reload = true;
 			this.sCount = 5;
 			if (this.type !== "liked") {
-				reload = true;
 				this.type = "liked";
 				this.typelabel = "Liked";
 			}
@@ -740,9 +750,6 @@ GridSceneAssistant.prototype = {
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		}
 	},
-	FilterList: function(event) {
-		b = event;
-	},
 	getNextPage: function() {
 		this.currentpage += 1;
 		var onComplete = function(transport) {
@@ -821,6 +828,17 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 			}
 		}
 	}.bind(this);
+	
+	var resetDefaultMix = function(command){
+		for (i = 0; i < this.appMenuModel.items[3].items.length; i++) {
+			if (this.appMenuModel.items[3].items[i].command == command) {
+				this.appMenuModel.items[3].items[i].iconPath = Mojo.appPath + "/images/check_mark.png";
+			} else {
+				this.appMenuModel.items[3].items[i].iconPath = "none";
+			}
+		}
+	}.bind(this);
+	
 	if (event.type == Mojo.Event.command) {
 		switch (event.command) {
 		case 'fwd':
@@ -910,6 +928,10 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 			break;
 		case 'login':
 			this.controller.stageController.pushScene('login');
+			//this.controller.showDialog({
+			//	template: 'dialogs/username-password-dialog',
+			//	assistant: new SampleDialogAssistant(this)
+			//});
 			break;
 		case 'logout':
 			this.cookie = new Mojo.Model.Cookie("credentials");
@@ -926,7 +948,14 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 			this.mixCount = 4;
 			this.appMenuModel.items[0].command = "login";
 			this.appMenuModel.items[0].label = "Login";
+			this.appMenuModel.items[3].items[5].disabled = true;
+			this.appMenuModel.items[3].items[6].disabled = true;
 			this.controller.modelChanged(this.appMenuModel, this);
+			cookie3 = new Mojo.Model.Cookie("defaultMix");
+			cookie3.put({
+				defaultMix: 'defmix:l'
+			});
+			resetDefaultMix('defmix:l');
 			break;
 		case 'support':
 			this.controller.serviceRequest("palm://com.palm.applicationManager", {
@@ -934,7 +963,7 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 				parameters: {
 					id: "com.palm.app.email",
 					params: {
-						summary: "8tracks Support Request: v1.2.9",
+						summary: "8tracks Support Request: v" + version,
 						recipients: [{
 							type: "email",
 							role: 1,
@@ -995,47 +1024,61 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 				}]
 			});
 			break;
+		case 'defmix:f':
+			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+			this.cookie3.put({
+				defaultMix: event.command
+			});
+			resetDefaultMix(event.command);
+			break;
 		case 'defmix:l':
 			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
 			this.cookie3.put({
 				defaultMix: event.command
 			});
+			resetDefaultMix(event.command);
 			break;
 		case 'defmix:r':
 			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
 			this.cookie3.put({
 				defaultMix: event.command
 			});
+			resetDefaultMix(event.command);
 			break;
 		case 'defmix:h':
 			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
 			this.cookie3.put({
 				defaultMix: event.command
 			});
+			resetDefaultMix(event.command);
 			break;
 		case 'defmix:p':
 			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
 			this.cookie3.put({
 				defaultMix: event.command
 			});
+			resetDefaultMix(event.command);
 			break;
 		case 'defmix:liked':
 			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
 			this.cookie3.put({
 				defaultMix: event.command
 			});
+			resetDefaultMix(event.command);
 			break;
 		case 'defmix:mm':
 			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
 			this.cookie3.put({
 				defaultMix: event.command
 			});
+			resetDefaultMix(event.command);
 			break;
 		case 'defmix:fol':
 			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
 			this.cookie3.put({
 				defaultMix: event.command
 			});
+			resetDefaultMix(event.command);
 			break;
 		}
 	} else if (event.type === Mojo.Event.back) {
@@ -1046,3 +1089,23 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 		this.MixChange(1);
 	}
 };
+
+var SampleDialogAssistant = Class.create({
+	
+	initialize: function(sceneAssistant) {
+		this.sceneAssistant = sceneAssistant;
+		this.controller = sceneAssistant.controller;
+	},
+	
+	setup : function(widget) {
+		this.widget = widget;
+		this.controller.get('thanksButton').addEventListener(Mojo.Event.tap, this.handleThanks.bindAsEventListener(this));
+		this.controller.get('cancel_button').addEventListener(Mojo.Event.tap, this.handleThanks.bindAsEventListener(this));
+	},
+	
+	handleThanks: function() {
+		this.widget.mojo.close();
+	}
+	
+	
+});

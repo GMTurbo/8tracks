@@ -53,7 +53,7 @@ function PlayerAssistant(argFromPusher, token, response, mixphoto, setid, userid
 		this.audio1.removeEventListener('durationchange', this.trackDurationChanged.bind(this), false);
 	};
 	this.writeDescription = function() {
-		this.$.divider2.setLabel("Tracks(" + this.tracks.length + ")");
+		this.$.divider2.setLabel("Tracks (" + this.tracks.length + ")");
 	};
 	this.downloaded = false;
 	if (typeof this.audio1 !== "object") {
@@ -93,7 +93,8 @@ function PlayerAssistant(argFromPusher, token, response, mixphoto, setid, userid
 						skipped: tracks[i].name,
 						likeImage: this.songProps[i].liked === true ? "images/likedstar.png" : "images/unlikedstar.png",
 						duration: this.songProps[i].duration.toString() === "NaN:NaN" ? "?" : this.songProps[i].duration,
-						liked: this.songProps[i].liked
+						liked: this.songProps[i].liked,
+						buyImage: "images/buy.png"
 					};
 				} else {
 					this.list[i] = {
@@ -102,7 +103,8 @@ function PlayerAssistant(argFromPusher, token, response, mixphoto, setid, userid
 						oldsong: tracks[i].name,
 						likeImage: this.songProps[i].liked === true ? "images/likedstar.png" : "images/unlikedstar.png",
 						duration: this.songProps[i].duration.toString() == "NaN:NaN" ? "?" : this.songProps[i].duration,
-						liked: this.songProps[i].liked
+						liked: this.songProps[i].liked,
+						buyImage: "images/buy.png"
 					};
 				}
 			} else {
@@ -114,7 +116,8 @@ function PlayerAssistant(argFromPusher, token, response, mixphoto, setid, userid
 					title: tracks[i].name,
 					currentartist: tracks[i].performer,
 					currentsong: tracks[i].name,
-					likeImage: "images/speaker.png",
+					buyImage: "images/speaker.png",
+					likeImage: this.songProps[i].liked === true ? "images/likedstar.png" : "images/unlikedstar.png",
 					duration: "...",
 					liked: this.songProps[i].liked
 				};
@@ -149,7 +152,7 @@ PlayerAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-					{
+				{
 					label: this.mixID.name,
 					width: 320
 				}]
@@ -288,8 +291,7 @@ PlayerAssistant.prototype = {
 				textColor: props.textColor
 			});
 		}
-		this.$.picture1.setSrc(this.mphoto);
-		//this.controller.setWidgetModel("html2", {pic: this.mphoto});
+		this.controller.setWidgetModel("html2", {pic2: this.mphoto});
 		songprop = {
 			skipped: false,
 			duration: 0,
@@ -329,15 +331,18 @@ PlayerAssistant.prototype = {
 			source: 'notification'
 		});
 	},
+	showErrorBanner: function(msg){
+		Mojo.Controller.getAppController().showBanner({icon: "alert.png",messageText: msg},msg);
+	},
 	handleheadset: function(payload) {
-		switch(payload.state){
-			case "double_click":
-				this.skipTrack();
-				break;
-			case "single_click":
-				this.toggleSongState();
-				break;
-			}
+		switch (payload.state) {
+		case "double_click":
+			this.skipTrack();
+			break;
+		case "single_click":
+			this.toggleSongState();
+			break;
+		}
 	},
 
 	handleBluetooth: function(event) {
@@ -418,15 +423,15 @@ PlayerAssistant.prototype = {
 		var onComplete = function(transport) {
 			if (transport.status == 200) {
 				this.showBanner("New Mix: " + transport.responseJSON.next_mix.name);
-				this.mphoto = transport.responseJSON.next_mix.cover_urls.original;
-				this.$.picture1.setSrc(this.mphoto);
+				this.mphoto = transport.responseJSON.next_mix.cover_urls.max200;
+				this.controller.setWidgetModel("html2", {pic2: this.mphoto});
 				this.model.progress = 0;
 				this.controller.modelChanged(this.model, this);
 				this.mixID = transport.responseJSON.next_mix;
 				this.liked = this.mixID.liked_by_current_user;
 				this.feedMenuModel.items[0].items[1].label = this.mixID.name;
-				this.appMenuModel.items[0].items[1].label = this.mixID.liked_by_current_user ? "Unlike Mix" : "Like Mix";
-				this.appMenuModel.items[0].items[1].command = this.mixID.liked_by_current_user ? "unlike" : "like";
+				this.appMenuModel.items[1].label = this.mixID.liked_by_current_user ? "Unlike Mix" : "Like Mix";
+				this.appMenuModel.items[1].command = this.mixID.liked_by_current_user ? "unlike" : "like";
 				this.controller.modelChanged(this.feedMenuModel, this);
 				this.controller.modelChanged(this.appMenuModel, this);
 				this.setid = this.mixID.id;
@@ -435,9 +440,9 @@ PlayerAssistant.prototype = {
 						this.audio1.pause();
 						this.audio1.src = transport.responseJSON.set.track.url;
 						this.audio1.load();
-						var response = transport.responseJSON;
+						response = transport.responseJSON;
+						this.tracks = 0;
 						this.tracks = [];
-						this.tracks = new Array();
 						this.tracks.push(response.set.track);
 						this.trackinfo = response;
 						this.lastsong = false;
@@ -630,13 +635,13 @@ PlayerAssistant.prototype = {
 		});
 	},
 	picture1Hold: function(inSender, event) {
-		var onSucces = function() {
+		var onSuccess = function() {
 			this.showBanner("Image Saved to Device");
 		};
 		var onFailure = function() {
 			this.showBanner("Download Failed");
 		};
-		this.downloadImage(this.mphoto, onSucces.bind(this), onFailure.bind(this));
+		this.downloadImage(this.mphoto, onSuccess.bind(this), onFailure.bind(this));
 		event.stop();
 	},
 
@@ -699,7 +704,7 @@ PlayerAssistant.prototype = {
 		this.audio1.play();
 	},
 	trackRateChange: function(event) {
-		var buffer = this.audio1.buffered;
+		//var buffer = this.audio1.buffered;
 	},
 	trackDurationChanged: function(event) {
 		this.modifyListElementDuration();
@@ -733,46 +738,46 @@ PlayerAssistant.prototype = {
 		this.controller.modelChanged(this.cmdMenuModel, this);
 	},
 	list1Listtap: function(inSender, event) {
-		this.listindex = event.index;
-		if (!this.loggedin) {
-			this.controller.popupSubmenu({
-				onChoose: this.popupHandler,
-				placeNear: event.originalEvent.target,
-				items: [
-					{
-					label: 'Buy',
-					command: 'buy'
-				},
-					{
-					label: 'Write it down',
-					command: 'save'
-				}]
-			});
+		var selected = this.tracks[this.tracks.length - event.index - 1];
+		classname = event.originalEvent.target.className;
+
+		if (classname === "likeimg") {
+				if(this.loggedin){
+					event.item.liked = !event.item.liked;
+					this.songProps[this.tracks.length - event.index - 1].liked = event.item.liked;
+					this.setLikeState(selected, !event.item.liked);
+				}else{
+					this.showErrorBanner("login required to like songs");
+				}
+		} else if (classname === "buyimg") {
+	//	if (event.originalEvent.target.src.indexOf("speaker") < 0) {
+			this.Buy(selected.buy_link, selected.performer, selected.name);
+		//	}
 		} else {
-			var selected = this.tracks[this.tracks.length - this.listindex - 1];
-			//if (!event.item.liked) {
 			this.controller.popupSubmenu({
 				onChoose: this.popupHandler,
 				placeNear: event.originalEvent.target,
 				items: [
-					{
-					label: 'Buy',
-					command: 'buy'
-				},
+		//			{
+		//			label: 'Buy',
+		//			command: 'buy'
+		//		},
 					{
 					label: 'Write it down',
 					command: 'save'
-				},
-					{
-					label: event.item.liked ? "Unlike" : "Like",
-					command: event.item.liked ? 'unlksong' : 'lksong'
-				}]
+				}
+		//			{
+		//			label: event.item.liked ? "Unlike" : "Like",
+		//			command: event.item.liked ? 'unlksong' : 'lksong',
+		//			disabled: !this.loggedin
+		//		}
+		]
 			});
 		}
 	},
 	Buy: function(link, artist, song) {
 		var onFailure = function(transport) {
-			this.popUp("crap", "");
+			this.Popup("Oops", "Where is your Amazon Store App?!");
 		};
 		this.controller.serviceRequest('palm://com.palm.applicationManager', {
 			method: 'launch',
@@ -835,10 +840,12 @@ PlayerAssistant.prototype = {
 		}
 	},
 	songLiked: function(transport) {
+		DashPlayerInstance.updateLike(true);
 		this.banner("You like " + this.song.name);
 		this.populateList();
 	},
 	songUnliked: function(transport) {
+		DashPlayerInstance.updateLike(true);
 		this.banner("You don't like " + this.song.name + " anymore");
 		this.populateList();
 	},
@@ -894,6 +901,7 @@ PlayerAssistant.prototype.handleCommand = function(event) {
 		switch (event.command) {
 		case 'fwd':
 			//this.loadNextMix2();
+			//this.loadNextMix();
 			this.sound.pause();
 			this.sound.src = Mojo.appPath + "/sounds/nextmix.mp3";
 			this.sound.load();

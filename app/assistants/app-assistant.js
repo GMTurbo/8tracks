@@ -15,14 +15,18 @@ AppAssistant.prototype.cleanup = function() {
 };
 
 AppAssistant.prototype.onDeactivateHandler = function(event) {
-	var dashboardController = this.controller.getStageController('dashboard');
-	if (!dashboardController) {
-		this.controller.createStageWithCallback({
-			name: 'dashboard',
-			lightweight: true,
-			clickableWhenLocked: true
-		},
-		this.loadDashboardHandler, 'dashboard');
+	if (DashPlayerInstance !== 0) {
+		if (DashPlayerInstance.audio() !== 0) {
+			var dashboardController = this.controller.getStageController('dashboard');
+			if (!dashboardController) {
+				this.controller.createStageWithCallback({
+					name: 'dashboard',
+					lightweight: true,
+					clickableWhenLocked: true
+				},
+				this.loadDashboardHandler, 'dashboard');
+			}
+		}
 	}
 };
 

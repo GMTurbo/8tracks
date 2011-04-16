@@ -1,5 +1,6 @@
 opus.Gizmo({
 	name: "gridScene",
+	plane: "1",
 	dropTarget: true,
 	type: "Palm.Mojo.Panel",
 	h: "100%",
@@ -18,6 +19,7 @@ opus.Gizmo({
 		},
 		{
 			name: "spinner1",
+			plane: "1",
 			type: "Palm.Mojo.Spinner",
 			l: 0,
 			r: "270",
@@ -47,6 +49,7 @@ opus.Gizmo({
 			controls: [
 				{
 					name: "list1",
+					plane: "0",
 					dropTarget: true,
 					items: [
 						{
@@ -72,7 +75,7 @@ opus.Gizmo({
 					],
 					useSampleData: false,
 					title: undefined,
-					itemHtml: "\n<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <set_id=\"set_id\">\n    <tag=\"tag\">\n    <timeSince=\"timeSince\">\n    <table style=\"padding:1pt;vertical-align:top;\">\n    <tr>\n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\"></th>\n      <th id=\"col2\">\n        <dt id=\"titleText\" style=\"font-family:Tahoma;font-size:13pt;\"> #{title} </dt>\n        <dt id=\"tagText\"> #{tag} </dt>\n        <dt id=\"time\"> #{timeSince} </dt>\n      </th>\n    </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
+					itemHtml: "\n<div class=\"palm-row grid-cell\" x-mojo-tap-highlight=\"delayed\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <set_id=\"set_id\">\n    <tag=\"tag\">\n    <timeSince=\"timeSince\">\n    <table style=\"padding:1pt;vertical-align:top;\">\n    <tr>\n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\"></th>\n      <th id=\"col2\">\n        <dt id=\"titleText\" style=\"font-family:Tahoma;font-size:13pt;\"> #{title} </dt>\n        <dt id=\"tagText\"> #{tag} </dt>\n        <dt id=\"time\"> #{timeSince} </dt>\n      </th>\n    </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
 					onlisttap: "list1Listtap",
 					onlistdelete: "list1Listdelete",
 					reorderable: false,

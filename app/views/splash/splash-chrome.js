@@ -9,7 +9,7 @@ opus.Gizmo({
 	h: 452,
 	styles: {
 		zIndex: 2,
-		bgImage: "images/White_Crystal.jpg"
+		bgImage: "images/blue.jpg"
 	},
 	chrome: [
 		{
@@ -23,8 +23,9 @@ opus.Gizmo({
 		{
 			name: "picture1",
 			type: "Palm.Picture",
-			l: 0,
-			w: 321,
+			l: "10",
+			r: "10",
+			w: "80%",
 			t: 0,
 			h: 234
 		}

@@ -1,0 +1,25 @@
+table{
+	heigth: 100%;
+	width: 100%;
+}
+span.trunc{
+	width: 33%;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+	overflow:hidden; 
+}
+span{
+	font-size:11pt;  
+	border:solid;  
+	border-color:white; 
+	background-color: #FFFFFF;  
+	-webkit-border-radius:5pt; 
+	float:center;
+	-webkit-transition: -webkit-transform .2s ease-out;
+}
+span:active{
+	color:#FFFFFF; 
+	border-color:black; 
+	background-color: #000000;  
+	-webkit-transform:rotate(0deg) scale(1.2,1.2);
+}

@@ -131,6 +131,7 @@ SearchScreneAssistant.prototype = {
 		this.$.listSelector1.setValue(this.criteria);
 		this.showSpinner(false);
 		if ((this.character !== "" && typeof data === "undefined") || (this.character !== "" && typeof data.keyword !== "undefined")) {
+			this.searchCriteria="tag";
 			this.search();
 		}
 	},
@@ -139,6 +140,7 @@ SearchScreneAssistant.prototype = {
 	},
 	request: function(url, onComplete, onFailure) {
 		this.showSpinner(true);
+		url = url.replace(/ /g,"%20"); // replace spaces with %20
 		var myAjax = new Ajax.Request(url, {
 			method: "get",
 			evalJSON: 'force',

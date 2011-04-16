@@ -26,25 +26,25 @@ function MixDetailsSceneAssistant(argFromPusher, setid, userid, username, passwo
 					tag3: tags[3 * i + 2]
 				});
 			}
+			ret = 0;
 			//get remaining tags
 			count = tags.length - (3 * step);
 			var remainder;
 			switch (count) {
 			case 1:
 				remainder = {
-					tag1: tags[tags.length - 1],
-					tag2: "",
-					tag3: ""
+					tag1: tags[tags.length - 1]
 				};
 				list.push(remainder);
+				ret = 1;
 				break;
 			case 2:
 				remainder = {
 					tag1: tags[tags.length - 2],
-					tag2: tags[tags.length - 1],
-					tag3: ""
+					tag2: tags[tags.length - 1]
 				};
 				list.push(remainder);
+				ret = 2;
 				break;
 			}
 
@@ -54,11 +54,14 @@ function MixDetailsSceneAssistant(argFromPusher, setid, userid, username, passwo
 			return {
 				getList: function() {
 					return listModel;
+				},
+				getBadTagCount: function(){
+					return ret;
 				}
 			};
 		};
 		this.controller.setWidgetModel("list1", fillTagGrid(tags.split(",")).getList());
-		
+		return fillTagGrid(tags.split(",")).getBadTagCount();
 	};
 	this.setPicture = function(picture) {
 		this.controller.setWidgetModel("html1", {
@@ -83,25 +86,6 @@ function MixDetailsSceneAssistant(argFromPusher, setid, userid, username, passwo
 
 MixDetailsSceneAssistant.prototype = {
 	setup: function() {
-		if (this.userid === -1) {
-			this.cmdMenuModel = {
-				visible: true,
-				items: [
-					{
-					items: [{
-						iconPath: 'images/user_info.png',
-						label: $L('Info'),
-						command: 'info'
-					}]
-				},{
-					items: [{
-						label: $L('Listen'),
-						command: 'play'
-					}]
-				}]
-			};
-		} else {
-			if (!this.liked) {
 				this.cmdMenuModel = {
 					visible: true,
 					items: [
@@ -114,45 +98,21 @@ MixDetailsSceneAssistant.prototype = {
 					},
 						{
 						items: [{
-							iconPath: 'images/mixlikeheart2.png',
-							label: $L('Like'),
-							command: 'like'
+							width: 45,
+							iconPath: this.liked ? 'images/mixunlikeheart1.png' : 'images/mixlikeheart2.png',
+							label: this.liked ? $L('Unlike') : $L('Like'),
+							command: this.liked ? 'unlike' : 'like',
+							disabled: this.userid == -1
 						}]
 					},
 						{
 						items: [{
+							iconPath: Mojo.appPath + "/images/playselected.png",
 							label: $L('Listen'),
 							command: 'play'
 						}]
 					}]
 				};
-			} else {
-				this.cmdMenuModel = {
-					visible: true,
-					items: [
-						{
-						items: [{
-							iconPath: 'images/user_info.png',
-							label: $L('Info'),
-							command: 'info'
-						}]
-					},
-						{
-						items: [{
-							iconPath: 'images/mixunlikeheart1.png',
-							label: $L('Unlike'),
-							command: 'unlike'
-						}]
-					},
-						{
-						items: [{
-							label: $L('Listen'),
-							command: 'play'
-						}]
-					}]
-				};
-			}
-		}
 
 		this.controller.setupWidget(Mojo.Menu.commandMenu, {
 			menuClass: 'no-fade'
@@ -165,7 +125,7 @@ MixDetailsSceneAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-					                                                                                                                    {
+				{
 					label: this.mixInfo.name,
 					width: 320
 				}]
@@ -247,7 +207,17 @@ MixDetailsSceneAssistant.prototype = {
 			}
 		}
 		this.showSpinner(false);
-		this.writeDetails(this.mixInfo.name, this.mixInfo.description, this.mixInfo.tag_list_cache);
+		count = this.writeDetails(this.mixInfo.name, this.mixInfo.description, this.mixInfo.tag_list_cache);
+		//switch(count){
+		//	case 2:
+		//		($("tag3")).style.backgroundcolor=0;
+		//		this.controller.modelChanged(this.$.list1, this);
+		//	break;
+		//	case 1:
+		//		($("tag2")).style.backgroundcolor=0;
+		//		($("tag3")).style.backgroundcolor=0;
+		//	break;
+		//}
 		dat = {
 			pic: this.mixInfo.user.avatar_urls.sq100.toString() === "/images/avatars/sq100.jpg" ? Mojo.appPath + "/images/unknownUser.jpg" : this.mixInfo.user.avatar_urls.sq100
 		};
@@ -330,6 +300,7 @@ MixDetailsSceneAssistant.prototype = {
 			if (typeof response.responseJSON.bypass === "undefined") {
 				this.popUp("Success", "Mixed added to your Liked list");
 			}
+			this.likedtoggle = true;
 			this.liked = true;
 			this.cmdMenuModel.items[1].items[0].iconPath = 'images/mixunlikeheart1.png';
 			this.cmdMenuModel.items[1].items[0].label = "Unlike";
@@ -357,6 +328,7 @@ MixDetailsSceneAssistant.prototype = {
 			if (typeof response.responseJSON.bypass === "undefined") {
 				this.popUp("Success", "Mixed removed from your Liked list");
 			}
+			this.likedtoggle = true;
 			this.liked = false;
 			this.cmdMenuModel.items[1].items[0].iconPath = 'images/mixlikeheart2.png';
 			this.cmdMenuModel.items[1].items[0].label = "Like";
@@ -420,9 +392,17 @@ MixDetailsSceneAssistant.prototype.handleCommand = function(event) {
 			break;
 		}
 	} else if (event.type === Mojo.Event.back) {
-		data = {
-			search: true
-		};
+		var data;
+		if(typeof this.likedtoggle!=="undefined"){
+			data = {
+				search: true,
+				liked: this.liked
+			};
+		}else{
+			data = {
+				search: true
+			};
+		}
 		event.stop();
 		this.controller.stageController.popScene(data);
 	}

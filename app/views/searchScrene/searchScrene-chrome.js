@@ -1,5 +1,6 @@
 opus.Gizmo({
 	name: "searchScrene",
+	plane: "1",
 	dropTarget: true,
 	type: "Palm.Mojo.Panel",
 	t: 0,
@@ -11,13 +12,19 @@ opus.Gizmo({
 	chrome: [
 		{
 			name: "divider1",
-			label: "just type",
+			label: "Search",
 			type: "Palm.Mojo.Divider",
 			l: 0,
-			t: 0
+			t: 0,
+			styles: {
+				fontSize: "9px",
+				fontFamily: "",
+				clip: false
+			}
 		},
 		{
 			name: "textField3",
+			plane: "1",
 			autoHeight: false,
 			autoFocus: true,
 			hintText: "search",
@@ -72,6 +79,7 @@ opus.Gizmo({
 		},
 		{
 			name: "scroller1",
+			plane: "1",
 			ontap: "",
 			onchange: "",
 			scrollPosition: {
@@ -89,6 +97,7 @@ opus.Gizmo({
 			controls: [
 				{
 					name: "list1",
+					plane: "1",
 					dropTarget: true,
 					items: [
 						{
@@ -114,7 +123,7 @@ opus.Gizmo({
 					],
 					useSampleData: false,
 					title: undefined,
-					itemHtml: "<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\" style=\"padding:1pt;\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <set_id=\"set_id\">\n    <tag=\"tag\">\n    <creator=\"creator\">\n    <timeSince=\"timeSince\">\n    <table style=\"padding:1pt;\">\n    <tr>\n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\"></th>\n      <th id=\"col2\">\n        <dt id=\"titleText\" style=\"font-family:Tahoma;font-size:13pt;\"> #{title} </dt>\n        <dt id=\"tagText\"> #{tag}&nbsp;<i>#{creator}</i></dt>\n        <dt id=\"time\"> #{timeSince} </dt>\n      </th>\n    </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
+					itemHtml: "<div class=\"palm-row grid-cell\" x-mojo-tap-highlight=\"delayed\" style=\"padding:1pt;\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <set_id=\"set_id\">\n    <tag=\"tag\">\n    <creator=\"creator\">\n    <timeSince=\"timeSince\">\n    <table style=\"padding:1pt;\">\n    <tr>\n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\"></th>\n      <th id=\"col2\">\n        <dt id=\"titleText\" style=\"font-family:Tahoma;font-size:13pt;\"> #{title} </dt>\n        <dt id=\"tagText\"> #{tag}&nbsp;<i>#{creator}</i></dt>\n        <dt id=\"time\"> #{timeSince} </dt>\n      </th>\n    </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
 					onlisttap: "list1Listtap",
 					swipeToDelete: false,
 					reorderable: false,

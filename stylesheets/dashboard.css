@@ -25,7 +25,9 @@
 .control-button.selected { background-position-y: -48px; }
 
 .control-button.pause { background-position-x: -48px; }
-.control-button.next { background-position-x: -96px; }
+.control-button.next { 
+	background-position-x: -96px;
+ }
 .control-button.previous { background-position-x: -142px; }
 
 .dashboard-notification-module .album-art {

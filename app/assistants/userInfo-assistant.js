@@ -3,7 +3,9 @@ function UserInfoAssistant(argFromPusher) {
 	this.token = 0;
 	this.mixInfo = 0;
 	this.loggedin = false;
+	this.currentpage = 1;
 	this.type = 'uc_mix';
+	this.headerLabel = "published mixes";
 	this.cookie = new Mojo.Model.Cookie("credentials");
 	if (this.cookie.get()) {
 		this.username = this.cookie.get().username;
@@ -11,8 +13,8 @@ function UserInfoAssistant(argFromPusher) {
 		this.userid = this.cookie.get().userid;
 		if (this.cookie.get().username !== "") {
 			this.loggedin = true;
-		}else{
-		this.userid = -1;
+		} else {
+			this.userid = -1;
 		}
 	} else {
 		this.setid = -1;
@@ -43,6 +45,10 @@ function UserInfoAssistant(argFromPusher) {
 	this.setDividerLabel = function(label) {
 		this.$.divider1.setLabel(label);
 	};
+	this.setPageCountHeader = function() {
+		this.$.divider1.setLabel(this.headerLabel + " (" + this.currentpage + "/" + this.pagecount + ")");
+		//this.controller.get('scroller1').mojo.revealTop();
+	};
 	this.writeUserDetails = function(info1, info2) {
 		if (info1 === null) {
 			this.$.label3.setLabel("No bio available");
@@ -71,15 +77,29 @@ UserInfoAssistant.prototype = {
 					{
 					items: [{
 						label: $L('More'),
-						command: 'lm'
+						command: 'lm',
+						width: 100
 					}]
 				},
-					{},
+					{
+					items: [{
+						icon: "back",
+						command: 'back',
+						label: $L("Back"),
+						disabled: this.currentpage === 1
+					},{
+						icon: "forward",
+						command: 'fwd',
+						label: $L("Forward"),
+						disabled: this.pagecount === this.currentpage
+					}]
+				},
 					{
 					items: [{
 						label: $L('Follow'),
 						command: 'flw',
-						disabled: !this.loggedin
+						disabled: !this.loggedin,
+						width: 100
 					}]
 				}]
 			}]
@@ -147,31 +167,103 @@ UserInfoAssistant.prototype = {
 		}
 		this.$.spinner1.setSpinning(show);
 	},
+	setPageControls: function(mixcount) {
+		if (this.pagecount === 0 && this.currentpage === 1) {
+			this.pagecount = 1;
+		}
+		//if (mixcount === 0) {
+			this.controller.get('scroller4').mojo.revealTop();
+		//}
+		this.cmdMenuModel.items[0].items[1].items[0].disabled = this.currentpage === 1;
+		this.cmdMenuModel.items[0].items[1].items[1].disabled = this.currentpage === this.pagecount;
+		this.controller.modelChanged(this.cmdMenuModel, this);
+	},
 	listMixes: function() {
 		var onComplete = function(transport) {
 			if (transport.status === 200) {
+				this.headerLabel = "published mixes";
+				this.currentpage = 1;
 				var mixes = transport.responseJSON.mixes;
+				this.pagecount = Math.round(parseInt(transport.responseJSON.total_entries, 0) / 12);
+				this.setPageControls(mixes.length);
+				this.setPageCountHeader();
 				f = this.fillList(mixes);
-				this.$.divider1.setLabel("Mixes (" + mixes.length + ")");
 				this.controller.setWidgetModel("list1", f.getList());
 			}
 		};
 		var onFailure = function(transport) {};
-		url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?per_page=65";
-		this.request(url, onComplete.bind(this), onFailure.bind(this));
+		this.url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?per_page=12";
+		this.request(this.url, onComplete.bind(this), onFailure.bind(this));
 	},
 	listLikedMixes: function() {
 		var onComplete = function(transport) {
 			if (transport.status === 200) {
+				this.headerLabel = "liked";
+				this.currentpage = 1;
 				var mixes = transport.responseJSON.mixes;
+				this.pagecount = Math.round(parseInt(transport.responseJSON.total_entries, 0) / 12);
+				this.setPageControls(mixes.length);
+				this.setPageCountHeader();
 				f = this.fillList(mixes);
-				this.$.divider1.setLabel("Liked Mixes (" + mixes.length + ")");
 				this.controller.setWidgetModel("list1", f.getList());
 			}
 		};
 		var onFailure = function(transport) {};
-		url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?view=liked&per_page=65";
-		this.request(url, onComplete.bind(this), onFailure.bind(this));
+		this.url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?view=liked&per_page=12";
+		this.request(this.url, onComplete.bind(this), onFailure.bind(this));
+	},
+	listMixFeedMixes: function() {
+		var onComplete = function(transport) {
+			if (transport.status === 200) {
+				this.headerLabel = "Mix Feed";
+				this.currentpage = 1;
+				var mixes = transport.responseJSON.mixes;
+				this.pagecount = Math.round(parseInt(transport.responseJSON.total_entries, 0) / 12);
+				this.setPageControls(mixes.length);
+				this.setPageCountHeader();
+				f = this.fillList(mixes);
+				this.controller.setWidgetModel("list1", f.getList());
+			}
+		};
+		var onFailure = function(transport) {};
+		this.url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?view=mixfeed&per_page=12";
+		this.request(this.url, onComplete.bind(this), onFailure.bind(this));
+	},
+	getNextPage: function() {
+		this.showSpinner(true);
+		this.currentpage += 1;
+		var onComplete = function(transport) {
+			mixes = transport.responseJSON.mixes;
+			this.setPageControls(mixes.length);
+			f = this.fillList(mixes);
+			this.controller.setWidgetModel("list1", f.getList());
+			this.setPageCountHeader();
+			this.showSpinner(false);
+		};
+		var onFailure = function(transport) {
+			this.showSpinner(false);
+			this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
+		};
+		this.request(this.url + "&page=" + this.currentpage, onComplete.bind(this), onFailure.bind(this));
+	},
+	getPreviousPage: function() {
+		if (this.currentpage - 1 > 0) {
+			this.showSpinner(true);
+			this.currentpage -= 1;
+			var onComplete = function(transport) {
+				mixes = transport.responseJSON.mixes;
+				this.setPageControls(mixes.length);
+				f = this.fillList(mixes);
+				this.controller.setWidgetModel("list1", f.getList());
+				this.setPageCountHeader();
+				this.showSpinner(false);
+			};
+			var onFailure = function(transport) {
+				this.showSpinner(false);
+				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
+			};
+			this.request(this.url + "&page=" + this.currentpage, onComplete.bind(this), onFailure.bind(this));
+		}
 	},
 	getUserInfo: function() {
 		var onComplete = function(transport) {
@@ -245,7 +337,6 @@ UserInfoAssistant.prototype = {
 	},
 	followUser: function() {
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		//var postdata = this.token;
 		var url = "http://8tracks.com/users/" + this.userInfo.id + "/follow.json";
 		var onFailure = function(transport) {
 			this.popUp("Error", "Could not follow user. Try to login again");
@@ -259,7 +350,6 @@ UserInfoAssistant.prototype = {
 	},
 	unFollowUser: function() {
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		//var postdata = this.token;
 		var url = "http://8tracks.com/users/" + this.userInfo.id + "/unfollow.json";
 		var onFailure = function(transport) {
 			this.popUp("Error", "Could not unfollow user. Try to login again");
@@ -296,17 +386,29 @@ UserInfoAssistant.prototype = {
 		case 'ul_mix':
 			// user liked mixes
 			if (this.type !== 'ul_mix') {
+				this.type = response;
 				this.listLikedMixes();
 			}
 			break;
 		case 'uc_mix':
 			// user created mixes
 			if (this.type !== 'uc_mix') {
+				this.type = response;
 				this.listMixes();
+			}
+			break;
+		case 'umf_mix':
+			//mix feed
+			if (this.type !== 'umf_mix') {
+				this.type = response;
+				this.listMixFeedMixes();
 			}
 			break;
 		}
 		this.type = response;
+	},
+	html1Tap: function(inSender, event) {
+		//b=event;
 	}
 };
 
@@ -326,16 +428,26 @@ UserInfoAssistant.prototype.handleCommand = function(event) {
 				placeNear: event.originalEvent.target,
 				items: [
 					{
-					label: "Created Mixes",
+					label: "Created mixes",
 					command: 'uc_mix',
 					iconPath: this.type == 'uc_mix' ? Mojo.appPath + "/images/check_mark.png" : "none"
 				},
 					{
-					label: "Liked Mixes",
+					label: "Liked mixes",
 					command: 'ul_mix',
 					iconPath: this.type == 'ul_mix' ? Mojo.appPath + "/images/check_mark.png" : "none"
+				},{
+					label: "Mix feed",
+					command: 'umf_mix',
+					iconPath: this.type == 'umf_mix' ? Mojo.appPath + "/images/check_mark.png" : "none"
 				}]
 			});
+			break;
+		case 'fwd':
+			this.getNextPage().bind(this);
+			break;
+		case 'back':
+			this.getPreviousPage().bind(this);
 			break;
 		}
 	}

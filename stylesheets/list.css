@@ -9,7 +9,6 @@
 
 dt#tagText {
 	font-family: Helvetica, Georgia, sans-serif;
-	//color: #777777;
 	color: #767676;
 	font-size: 11pt;
 }
@@ -22,6 +21,7 @@ th#col2 {
 
 th#col1 {
  vertical-align: top;
+ width: 70px;
 }
 dt#time {
 	text-align: left;
@@ -32,19 +32,18 @@ dt#time {
 .floatleft {
 	float: left;
 	vertical-align: text-top;
-	margin: 2px;
-	width: 70px;
-	height: 70px;
+	margin: 1px;
+	width: 60px;
+	height: 60px;
 	-webkit-border-radius:8px;
 	-webkit-transform:rotate(-5deg);
-	//-webkit-transition: -webkit-transform .5s ease-out;
-	//z-index:-1;
+	-webkit-transition: -webkit-transform .5s ease-out;
 	border:none;
 }
-//.floatleft:active,.floatleft:focus{
-	//z-index:10;
-//	-webkit-transform:rotate(2deg) scale(1,1);
-//}
+.floatleft:active,.floatleft:focus{
+	z-index:10;
+	-webkit-transform:rotate(2deg) scale(1,1);
+}
 	
 dt#artistText {
 	font-family: Georgia, sans-serif;
@@ -59,7 +58,7 @@ dt#length {
 div#currentSong {
 	font-family: Helvetica, sans-serif;
 	font-style: italic;
-	font-size: 14pt;
+	font-size: 12pt;
 }
 div#oldSong {
 	font-family: Arial, sans-serif;
@@ -69,4 +68,32 @@ div#skippedSong {
 	font-family: Arial, sans-serif;
 	font-size: 12pt;
 	text-decoration: line-through; 
+}
+.likeimg {
+	float: center;
+	vertical-align: top;
+	padding:10pt;
+	-webkit-transition: -webkit-transform .5s ease-out;
+}
+.likeimg:active, .likeimg:visited{
+	border:solid;  
+	border-color:white; 
+	background-color: #000000;  
+	-webkit-border-radius:5pt; 
+	padding:2pt; 
+	-webkit-transform:rotate(360deg) scale(1.2,1.2);
+}
+.buyimg {
+	float: center;
+	vertical-align: top;
+	padding:3pt;
+	-webkit-transition: -webkit-transform .1s ease-out;
+}
+.buyimg:active{
+	border:solid;  
+	border-color:black; 
+	background-color: #FFFFFF;  
+	-webkit-border-radius:5pt; 
+	padding:2pt; 
+	-webkit-transform:rotate(0deg) scale(1.2,1.2);
 }

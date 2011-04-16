@@ -26,7 +26,7 @@ SplashAssistant.prototype = {
 		Ares.cleanupSceneAssistant(this);
 	},
 	activate: function() {
-		this.$.picture1.setSrc(Mojo.appPath + "images/tracks_01.png");
+		this.$.picture1.setSrc(Mojo.appPath + "images/logo.png");
 		this.cookie = new Mojo.Model.Cookie("credentials");
 		if (this.cookie.get()) {
 			this.username = this.cookie.get().username;
@@ -138,6 +138,13 @@ SplashAssistant.prototype = {
 			Mojo.Log.info("Failed to login");
 		};
 		this.type = this.getDefaultMix();
+		if((this.type === "liked" && this.userid === -1)||(this.type === "mine" && this.userid === -1)){ // liked mix not available when you're not logged in
+			this.type = "recent";
+			cookie3 = new Mojo.Model.Cookie("defaultMix");
+			cookie3.put({
+				defaultMix: 'defmix:l'
+			});
+		}
 		var url = "";
 		if (this.type === "liked") {
 			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked";
@@ -146,7 +153,7 @@ SplashAssistant.prototype = {
 		} else if (this.type === "featured") {
 			url = "http://8tracks.com/mix_sets/featured.json?per_page=10&page=1";
 		} else {
-			url = "http://8tracks.com/mixes.json?page=1&sort=" + this.type;
+			url = "http://8tracks.com/mixes.json?page=1&sort="+ this.type;
 		}
 
 		this.requestDemo(url, onComplete.bind(this), onFailure.bind(this));

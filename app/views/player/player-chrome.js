@@ -46,14 +46,14 @@ opus.Gizmo({
 			h: 17
 		},
 		{
-			name: "picture1",
+			name: "html2",
+			content: "<style>\n .pic2 {\n    display:block;\n    margin-left:auto;\n    margin-right:auto;\n    height: 100%;\n    -webkit-border-radius:20px;\n    -webkit-transition: -webkit-transform .3s ease-out;\n}\n.pic2:active,.pic2:focus{\n    z-index:10;\n    -webkit-transform:scale(1.2,1.2);\n}\n</style>\n<div x-mojo-touch-feedback=\"immediate\">  \n  <img src=#{pic2} class=\"pic2\"></img>\n</div>",
 			ontap: "picture1Tap",
 			onhold: "picture1Hold",
-			type: "Palm.Picture",
+			type: "Palm.Mojo.Html",
 			l: 0,
-			w: "100%",
 			t: 57,
-			h: 132
+			h: 149
 		},
 		{
 			name: "html1",
@@ -112,7 +112,7 @@ opus.Gizmo({
 					],
 					useSampleData: false,
 					title: undefined,
-					itemHtml: "<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\" style=\"padding:1pt;\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <duration=\"duration\">\n    <currentsong=\"song\">\n    <oldsong=\"song\">\n    <skipped=\"skipped\">\n    <currentartist=\"tag\">\n    <table>\n      <tr>\n        <th id=\"col2\" style=\"width:300px;\">\n          <dt> \n              <div id=\"currentSong\" style=\"font-style:italic;\"> #{currentsong}</div> \n              <div id=\"oldSong\" style=\"font-family:Georgia;\"> #{oldsong} </div>\n              <div id=\"skippedSong\" style=\"font-family:Georgia;\"> #{skipped} </div>\n          </dt>\n          <dt id=\"artistText\"> #{currentartist} </dt>\n          <dt id=\"length\"> #{duration}</dt>\n        </th>\n        <th id=\"col1\">\n            <img src=\"#{likeImage}\" style=\"float:right;\">\n        </th>\n      </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
+					itemHtml: "<!--class=\"palm-row grid-cell\" x-mojo-tap-highlight=\"delayed\"--> \n<div class=\"palm-row grid-cell\" style=\"padding:1pt\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <duration=\"duration\">\n    <currentsong=\"song\">\n    <oldsong=\"song\">\n    <skipped=\"skipped\">\n    <currentartist=\"tag\">\n    <table style=\"width:100%\">\n      <tr>\n         <th>\n          <div class=\"grid-cell\" x-mojo-touch-feedback=\"delayed\" style=\"height:100%;border-top:0px\">\n            <id=\"like\">\n              <img src=\"#{likeImage}\" class=\"likeimg\">\n          </div>  \n        </th>\n        <th id=\"col2\" style=\"width:70%\">\n          <dt> \n              <div id=\"currentSong\" style=\"font-style:italic\"> #{currentsong}</div> \n              <div id=\"oldSong\" style=\"font-family:Georgia\"> #{oldsong} </div>\n              <div id=\"skippedSong\" style=\"font-family:Georgia\"> #{skipped} </div>\n          </dt>\n          <dt id=\"artistText\"> #{currentartist} </dt>\n          <dt id=\"length\"> #{duration}</dt>\n        </th>\n        <th>\n          <div class=\"grid-cell\" x-mojo-touch-feedback=\"delayed\" style=\"height:100%;border-top:0px\">\n            <id=\"buy\">\n              <img src=\"#{buyImage}\" class=\"buyimg\">\n           </div>\n        </th>\n      </tr>\n    </table>\n  </div>  \n</link>\n</div>  \n",
 					onlisttap: "list1Listtap",
 					swipeToDelete: false,
 					reorderable: false,

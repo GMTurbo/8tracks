@@ -18,6 +18,7 @@ opus.Gizmo({
 		},
 		{
 			name: "spinner1",
+			plane: "0",
 			type: "Palm.Mojo.Spinner",
 			l: 0,
 			r: "270",
@@ -171,7 +172,7 @@ opus.Gizmo({
 											],
 											useSampleData: false,
 											title: undefined,
-											itemHtml: "<table x-mojo-tap-highlight=\"immediate\" style=\"width:100%;\">\n  <tr>\n    <th>\n      <div class=\"palm-row grid-cell\" x-mojo-touch-feedback=\"immediate\" style=\"border:none;\">\n       <id=\"tag1\" style=\"font-size:10pt; border:solid; border-color:white; background-color: #FFFFFF; -webkit-border-radius:5pt; padding:2pt;\">\n          #{tag1}\n      </div>  \n    </th>\n    <th>\n      <div class=\"palm-row grid-cell\" x-mojo-touch-feedback=\"immediate\" style=\"border:none;\">\n        <id=\"tag2\" style=\"font-size:10pt; border:solid; border-color:white; background-color: #FFFFFF; -webkit-border-radius:5pt; padding:2pt;\">\n          #{tag2}\n     </div>\n    </th>\n    <th>\n      <div class=\"palm-row grid-cell\" x-mojo-touch-feedback=\"immediate\" style=\"border:none;\">\n        <id=\"tag3\" style=\"font-size:10pt; border:solid; border-color:white; background-color: #FFFFFF; -webkit-border-radius:5pt; padding:2pt;\">\n          #{tag3}\n      </div>  \n    </th>\n  </tr>\n</table>",
+											itemHtml: " <!--<table>\n <link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/tag.css\">\n <tr>\n   <th>\n     <div x-mojo-touch-feedback=\"delayed\">\n       <span id=\"tag1\" class=\"trunc\">#{tag1}</span>\n     </div>  \n    </th>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n        <span id=\"tag2\" class=\"trunc\">#{tag2}</span>\n      </div>\n    </th>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n          <span id=\"tag3\" class=\"trunc\">#{tag3}</span>\n      </div>  \n    </th>\n  </tr>\n</table>-->\n<table style=\"width:100%; height:100%\">\n  <tr>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n       <id=\"tag1\" style=\"font-size:11pt;  border:solid;  border-color:white; background-color:  #FFFFFF;  -webkit-border-radius:5pt; padding:2pt; float:center;\">\n          #{tag1}\n      </div>  \n    </th>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n        <id=\"tag2\" style=\"font-size:11pt; border:solid;  border-color:white; background-color: #FFFFFF;  -webkit-border-radius:5pt; padding:2pt; float:center;\">\n          #{tag2}\n     </div>\n    </th>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n        <id=\"tag3\" style=\"font-size:11pt; border:solid; border-color:white; background-color: #FFFFFF; -webkit-border-radius:5pt; padding:2pt; float:center;\">\n          #{tag3}\n      </div>  \n    </th>\n  </tr>\n</table>\n",
 											onlisttap: "list1Listtap",
 											swipeToDelete: false,
 											reorderable: false,

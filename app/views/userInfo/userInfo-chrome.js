@@ -49,11 +49,12 @@ opus.Gizmo({
 				},
 				{
 					name: "html1",
-					content: "<style>\n .pic {\n    display:block;\n    margin-left:auto;\n    margin-right:auto;\n    height: 100%;\n    -webkit-border-radius:20px;\n    -webkit-transform:rotate(-5deg);\n    -webkit-transition: -webkit-transform .5s ease-out;\n    border:none;\n}\n.pic:active,.pic:focus{\n    z-index:10;\n    -webkit-transform:rotate(0deg) scale(1.2,1.2);\n}\n</style>\n  \n<img src=#{pic} class=\"pic\"></img>",
+					content: "<style>\n .pic {\n    display:block;\n    margin-left:auto;\n    margin-right:auto;\n    height: 100%;\n    -webkit-border-radius:20px;\n    //-webkit-transform:rotate(-5deg);\n    -webkit-transition: -webkit-transform .5s ease-out;\n    border:none;\n}\n.pic:active,.pic:focus{\n    z-index:10;\n    -webkit-transform:rotate(360deg) scale(1.4,1.4);\n}\n</style>\n<div x-mojo-touch-feedback=\"immediate\">  \n  <img src=#{pic} class=\"pic\"></img>\n</div>",
+					ontap: "html1Tap",
 					type: "Palm.Mojo.Html",
 					l: 0,
 					t: 16,
-					h: 154
+					h: 130
 				},
 				{
 					name: "group1",
@@ -61,8 +62,8 @@ opus.Gizmo({
 					label: "Bio",
 					type: "Palm.Mojo.Group",
 					l: 0,
-					t: 133,
-					h: 148,
+					t: 170,
+					h: 127,
 					styles: {
 						borderColor: ""
 					},
