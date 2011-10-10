@@ -28,7 +28,7 @@ opus.Gizmo({
 			name: "scroller1",
 			scrollPosition: {
 				left: 0,
-				top: 0
+				top: -241
 			},
 			type: "Palm.Mojo.Scroller",
 			l: 0,
@@ -153,7 +153,7 @@ opus.Gizmo({
 									name: "scroller3",
 									scrollPosition: {
 										left: 0,
-										top: 0
+										top: -9
 									},
 									type: "Palm.Mojo.Scroller",
 									l: 0,
@@ -172,7 +172,7 @@ opus.Gizmo({
 											],
 											useSampleData: false,
 											title: undefined,
-											itemHtml: " <!--<table>\n <link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/tag.css\">\n <tr>\n   <th>\n     <div x-mojo-touch-feedback=\"delayed\">\n       <span id=\"tag1\" class=\"trunc\">#{tag1}</span>\n     </div>  \n    </th>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n        <span id=\"tag2\" class=\"trunc\">#{tag2}</span>\n      </div>\n    </th>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n          <span id=\"tag3\" class=\"trunc\">#{tag3}</span>\n      </div>  \n    </th>\n  </tr>\n</table>-->\n<table style=\"width:100%; height:100%\">\n  <tr>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n       <id=\"tag1\" style=\"font-size:11pt;  border:solid;  border-color:white; background-color:  #FFFFFF;  -webkit-border-radius:5pt; padding:2pt; float:center;\">\n          #{tag1}\n      </div>  \n    </th>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n        <id=\"tag2\" style=\"font-size:11pt; border:solid;  border-color:white; background-color: #FFFFFF;  -webkit-border-radius:5pt; padding:2pt; float:center;\">\n          #{tag2}\n     </div>\n    </th>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n        <id=\"tag3\" style=\"font-size:11pt; border:solid; border-color:white; background-color: #FFFFFF; -webkit-border-radius:5pt; padding:2pt; float:center;\">\n          #{tag3}\n      </div>  \n    </th>\n  </tr>\n</table>\n",
+											itemHtml: "<table style=\"width:100%; height:100%\">\n  <tr>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n       <id=\"tag1\" style=\"font-size:11pt; background:rgba(0,0,0,0.75); color:white; -webkit-border-radius:5pt; padding:2px; float:center;\">\n          #{tag1}\n      </div>  \n    </th>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n        <id=\"tag2\" style=\"font-size:11pt; background:rgba(0,0,0,0.75); color:white; -webkit-border-radius:5pt; padding:2px; float:center;\">\n          #{tag2}\n     </div>\n    </th>\n    <th>\n      <div x-mojo-touch-feedback=\"delayed\">\n        <id=\"tag3\" style=\"font-size:11pt; background:rgba(0,0,0,0.75); color:white; -webkit-border-radius:5pt; padding:2px; float:center;\">\n          #{tag3}\n      </div>  \n    </th>\n  </tr>\n</table>\n",
 											onlisttap: "list1Listtap",
 											swipeToDelete: false,
 											reorderable: false,
@@ -239,6 +239,14 @@ opus.Gizmo({
 							]
 						}
 					]
+				},
+				{
+					name: "label4",
+					label: "",
+					type: "Palm.Mojo.Label",
+					l: 0,
+					t: 0,
+					h: "50"
 				}
 			]
 		}

@@ -1,5 +1,9 @@
-function MixDetailsSceneAssistant(argFromPusher, setid, userid, username, password) {
+function MixDetailsSceneAssistant(argFromPusher, setid, userid, username, password, launchie) {
+	MixScreneCount += 1;
 	this.userid = -1;
+	if(typeof launchie !=="undefined"){
+		this.launchie=launchie;
+	}
 	if (userid !== -1) {
 		this.loggedin = true;
 		this.userid = userid;
@@ -109,7 +113,8 @@ MixDetailsSceneAssistant.prototype = {
 						items: [{
 							iconPath: Mojo.appPath + "/images/playselected.png",
 							label: $L('Listen'),
-							command: 'play'
+							command: 'play',
+							disabled: this.launchie
 						}]
 					}]
 				};
@@ -208,24 +213,33 @@ MixDetailsSceneAssistant.prototype = {
 		}
 		this.showSpinner(false);
 		count = this.writeDetails(this.mixInfo.name, this.mixInfo.description, this.mixInfo.tag_list_cache);
-		//switch(count){
-		//	case 2:
-		//		($("tag3")).style.backgroundcolor=0;
-		//		this.controller.modelChanged(this.$.list1, this);
-		//	break;
-		//	case 1:
-		//		($("tag2")).style.backgroundcolor=0;
-		//		($("tag3")).style.backgroundcolor=0;
-		//	break;
-		//}
 		dat = {
 			pic: this.mixInfo.user.avatar_urls.sq100.toString() === "/images/avatars/sq100.jpg" ? Mojo.appPath + "/images/unknownUser.jpg" : this.mixInfo.user.avatar_urls.sq100
 		};
 		this.controller.setWidgetModel("html1", dat);
-
 		this.setUserInfo(this.mixInfo.user.login);
+		if(this.launchie){
+			if(MixScreneCount === 1){
+				this.showBanner("Mix Launching in New Card");
+				MixScreneCount+=1;
+				}
+				var self = this;
+				this.controller.window.setTimeout(function(){
+				self.cmdMenuModel.items[2].items[0].disabled = false;
+				self.controller.modelChanged(self.cmdMenuModel, self);
+				},5000);
+		}
+		//this.setUserInfo(this.mixInfo.user.login);
+		//this.cmdMenuModel.items[2].items[0].disabled = false;
+		//this.controller.modelChanged(this.cmdMenuModel, this);
 	},
-
+	finishedDad: function(data){
+		if(typeof data.message !== "undefined"){
+			this.showBanner(data.message);
+		}
+		this.cmdMenuModel.items[2].items[0].disabled = data.state;
+		this.controller.modelChanged(this.cmdMenuModel, this);
+	},
 	showSpinner: function(show) {
 		if (!show) {
 			this.feedMenuModel.items[0].items[1].width = 320;
@@ -255,7 +269,30 @@ MixDetailsSceneAssistant.prototype = {
 		var onComplete = function(transport) {
 			if (transport.status == 200) {
 				this.showSpinner(false);
-				this.controller.stageController.pushScene('player', this.mixInfo, this.token, transport.responseJSON, this.mixInfo.cover_urls.max200, this.setid, this.userid, this.username, this.password, this.cmdMenuModel.items[1].items[0].command);
+				launch8tracksPlayer = function(mixInfo, token, transport, setid, creds, liked) {
+					var parameters = {
+						id: 'com.mycompany.8tracks',
+						params: {
+							launchScene: 'player',
+							mixInfo: mixInfo,
+							token: token,
+							response: transport.responseJSON,
+							cover: mixInfo.cover_urls.max200,
+							setid: setid, 
+							userid: creds.userid,
+							username: creds.username,
+							password: creds.password, 
+							liked: liked
+						}
+					};
+					return new Mojo.Service.Request('palm://com.palm.applicationManager', {
+						method: 'open',
+						parameters: parameters
+					});
+				};
+				launch8tracksPlayer(this.mixInfo, this.token, transport, this.setid, {username:this.username, password:this.password, userid: this.userid}, this.liked);
+				
+				//this.controller.stageController.pushScene('player', this.mixInfo, this.token, transport.responseJSON, this.mixInfo.cover_urls.max200, this.setid, this.userid, this.username, this.password, this.cmdMenuModel.items[1].items[0].command);
 			}
 		};
 		var onFailure = function(transport) {
@@ -379,13 +416,24 @@ MixDetailsSceneAssistant.prototype.handleCommand = function(event) {
 			this.UnLike();
 			break;
 		case 'share':
-			this.controller.serviceRequest("palm://com.palm.applicationManager", {
+			/*this.controller.serviceRequest("palm://com.palm.applicationManager", {
 				method: 'open',
 				parameters: {
 					id: "com.palm.app.email",
 					params: {
 						summary: "Checkout this 8tracks mix!",
 						text: "Checkout this Mix: \n" + this.mixInfo.name + "\nwww.8tracks.com" + this.mixInfo.path
+					}
+				}
+			});*/
+			this.controller.serviceRequest("palm://com.palm.applicationManager", {
+				method: 'open',
+				parameters: {
+					id: "com.palm.app.email",
+					params: {
+						summary: "Checkout this 8tracks mix",
+						//text: "<b><br><a href=\"www.8tracks.com"+this.mixInfo.path+"\">"+this.mixInfo.name+"</a>" + "</b><br><br><i>" + this.mixInfo.description +"</i>"
+						text: "<b>" + this.mixInfo.name + "</b><br><br><i>" + this.mixInfo.description + "</i><br><br><a href=\"www.8tracks.com"+this.mixInfo.path+"\">"+"Listen to this!"+"</a>"
 					}
 				}
 			});

@@ -129,8 +129,11 @@ opus.Gizmo({
 					reorderable: false,
 					type: "Palm.Mojo.List",
 					l: 0,
+					r: 0,
+					w: null,
 					t: 0,
-					h: 262,
+					b: 17,
+					h: null,
 					styles: {
 						textColor: "black"
 					}
@@ -140,9 +143,10 @@ opus.Gizmo({
 		{
 			name: "spinner1",
 			type: "Palm.Mojo.Spinner",
-			l: 0,
-			r: "270",
-			t: 391
+			l: 9,
+			r: 279,
+			t: 421,
+			h: "32"
 		}
 	]
 });

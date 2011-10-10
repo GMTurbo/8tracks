@@ -47,7 +47,6 @@ function UserInfoAssistant(argFromPusher) {
 	};
 	this.setPageCountHeader = function() {
 		this.$.divider1.setLabel(this.headerLabel + " (" + this.currentpage + "/" + this.pagecount + ")");
-		//this.controller.get('scroller1').mojo.revealTop();
 	};
 	this.writeUserDetails = function(info1, info2) {
 		if (info1 === null) {
@@ -117,7 +116,7 @@ UserInfoAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-					                {
+				{
 					label: this.userInfo.login,
 					width: 320
 				}]
@@ -129,7 +128,7 @@ UserInfoAssistant.prototype = {
 			menuClass: 'no-fade'
 		},
 		this.feedMenuModel);
-
+		//this.controller.setWidgetModel("list1",{itemsCallback: this.itemsCallback.bind(this)});
 		Ares.setupSceneAssistant(this);
 	},
 	cleanup: function() {
@@ -172,7 +171,7 @@ UserInfoAssistant.prototype = {
 			this.pagecount = 1;
 		}
 		//if (mixcount === 0) {
-			this.controller.get('scroller4').mojo.revealTop();
+		this.controller.get('scroller4').mojo.revealTop();
 		//}
 		this.cmdMenuModel.items[0].items[1].items[0].disabled = this.currentpage === 1;
 		this.cmdMenuModel.items[0].items[1].items[1].disabled = this.currentpage === this.pagecount;
@@ -188,7 +187,7 @@ UserInfoAssistant.prototype = {
 				this.setPageControls(mixes.length);
 				this.setPageCountHeader();
 				f = this.fillList(mixes);
-				this.controller.setWidgetModel("list1", f.getList());
+				this.controller.setWidgetModel("list1",f.getList());
 			}
 		};
 		var onFailure = function(transport) {};
@@ -228,6 +227,17 @@ UserInfoAssistant.prototype = {
 		var onFailure = function(transport) {};
 		this.url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?view=mixfeed&per_page=12";
 		this.request(this.url, onComplete.bind(this), onFailure.bind(this));
+	},
+	itemsCallback:function(listWidget, offset, count){
+		this.updateListWithNewItems.delay(0.1, listWidget, offset, this.tracks.slice(offset, offset+count));
+	},
+	updateListWithNewItems: function(listWidget, offset, items) {
+		// Give the item models to the list widget, and render them into the DOM.
+		//listWidget.mojo.noticeUpdatedItems(offset, items);
+		b = items;
+		// This will do nothing when the list size hasn't actually changed, 
+		// but is necessary when initially setting up the list.
+		//listWidget.mojo.setLength(this.loremList.length);
 	},
 	getNextPage: function() {
 		this.showSpinner(true);
@@ -326,7 +336,29 @@ UserInfoAssistant.prototype = {
 		var onComplete = function(transport) {
 			if (transport.status == 200) {
 				this.showSpinner(false);
-				this.controller.stageController.pushScene('player', this.mixInfo, this.token, transport.responseJSON, this.mixInfo.cover_urls.max200, this.setid, this.userid, this.username, this.password, this.mixInfo.liked_by_current_user);
+				launch8tracksPlayer = function(mixInfo, token, transport, setid, creds) {
+					var parameters = {
+						id: 'com.mycompany.8tracks',
+						params: {
+							launchScene: 'player',
+							mixInfo: mixInfo,
+							token: token,
+							response: transport.responseJSON,
+							cover: mixInfo.cover_urls.max200,
+							setid: setid, 
+							userid: creds.userid,
+							username: creds.username,
+							password: creds.password, 
+							liked: mixInfo.liked_by_current_user
+						}
+					};
+					return new Mojo.Service.Request('palm://com.palm.applicationManager', {
+						method: 'open',
+						parameters: parameters
+					});
+				};
+				launch8tracksPlayer(this.mixInfo, this.token, transport, this.setid, {username:this.username, password:this.password, userid: this.userid});
+				//this.controller.stageController.pushScene('player', this.mixInfo, this.token, transport.responseJSON, this.mixInfo.cover_urls.max200, this.setid, this.userid, this.username, this.password, this.mixInfo.liked_by_current_user);
 			}
 		};
 		var onFailure = function(transport) {
@@ -436,11 +468,11 @@ UserInfoAssistant.prototype.handleCommand = function(event) {
 					label: "Liked mixes",
 					command: 'ul_mix',
 					iconPath: this.type == 'ul_mix' ? Mojo.appPath + "/images/check_mark.png" : "none"
-				},{
+				}/*,{
 					label: "Mix feed",
 					command: 'umf_mix',
 					iconPath: this.type == 'umf_mix' ? Mojo.appPath + "/images/check_mark.png" : "none"
-				}]
+				}*/]
 			});
 			break;
 		case 'fwd':

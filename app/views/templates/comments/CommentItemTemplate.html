@@ -1,0 +1,104 @@
+<style>
+	.maincontainer{
+		height: 80%;
+	}
+	.userimage{
+		vertical-align: bottom;
+		width: 0px;
+		height: 0px;
+	}
+	.userimage.show{
+		vertical-align: bottom;
+		width: 56px;
+		height: 56px;
+	}
+	.otheruserimage{
+		vertical-align: bottom;
+		width: 56px;
+		height: 56px;
+	}
+	.otheruserimage.hide{
+		width: 0px;
+		height: 0px;
+	}
+	.commentcontainer{
+	
+	}
+	.username{
+		position: relative;
+		top: 0px;
+		text-align:left;
+		color: black;
+		font: italic 12px/12px Helvetica, Sans-Serif;
+		letter-spacing: 0px;
+		/*background: rgb(0, 0, 0);*/
+		/*background: rgba(0, 0, 0, 0.7);*/
+		padding: 4px;
+	}
+	.timestamp{
+		position: relative;
+		top: -15px;
+		left: 50px;
+		text-align: right;
+		font: italic 10px/10px Helvetica, Sans-Serif;
+		color: #545454;
+	}
+	.body{
+		position:relative;
+		top:-20px;
+		align:left;
+		font: bold 14px/14px Prelude, Sans-Serif;
+	}
+	th{
+		text-align:left;
+		vertical-align: top;
+	}
+	.triangle-obtuse.left {
+		width:100%;
+		/*border: solid;
+		border-color:rgb(147,242,46);*/
+		border-bottom-right-radius:1em;
+		border-top-right-radius:1em;
+		border-top-left-radius:0em;/*0em*/
+		border-bottom-left-radius:1em;/*1em*/
+		padding: 10px;
+		align:left;
+		background:rgba(147,242,46,1.0);
+	}	
+	.triangle-obtuse.right {
+		width:100%;
+		border-bottom-right-radius:1em;/*1em*/
+		border-top-left-radius:1em;
+		border-top-right-radius:0em;
+		border-bottom-left-radius:1em;
+		padding: 10px;
+		align:left;
+		background:rgba(186,160,255,1.0);
+		/*195/234/36*/
+		/*blue: 12,202,186*/
+		/*purple: 186,160,255*/
+		/*border: solid;
+		border-color:rgb(186,160,255);*/
+	}
+</style>
+<div class="palm-row">
+	<div class="maincontainer">
+		<table>
+			<tr>
+				<th><img class="otheruserimage #{hide}" src="#{otheruserimage}"></th>
+				<th class="triangle-obtuse left #{right}">
+					<dt>
+						<span class="username">#{username} says:</span>
+						<span class="timestamp"> #{timestamp}</span>
+					</dt>
+					<dt>
+						<br/>
+						<div class="body">#{body}</div>
+					</dt>
+				</th>
+				<th><img class="userimage #{show}" src="#{myuserimage}"></th>
+			</tr>
+		</table>
+	</div>
+</div>
+<!--<div x-mojo-touch-feedback="delayed">-->

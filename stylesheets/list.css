@@ -29,6 +29,19 @@ dt#time {
 	color: #545454;
 	font-size: 10pt;
 }
+span#creator{
+	//border:solid;  
+	/*border-color:white; */
+	background: rgba(0,0,0,0.75);
+	padding: 2px;
+	//background-color: white;  
+	text-align: left;
+	font-family: Impact;
+	color: white;
+	font-size: 9pt;
+	-webkit-border-radius:3pt; 
+}
+
 .floatleft {
 	float: left;
 	vertical-align: text-top;

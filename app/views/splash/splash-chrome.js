@@ -3,31 +3,21 @@ opus.Gizmo({
 	dropTarget: true,
 	type: "Palm.Mojo.Panel",
 	l: 0,
-	r: 0,
-	w: 320,
-	b: 0,
-	h: 452,
+	t: 0,
+	h: "100%",
 	styles: {
 		zIndex: 2,
-		bgImage: "images/blue.jpg"
+		bgImage: "images/splash2.png",
+		textAlign: "center"
 	},
 	chrome: [
 		{
-			name: "label1",
-			label: "",
-			type: "Palm.Mojo.Label",
-			l: 0,
-			t: 0,
-			h: 91
-		},
-		{
 			name: "picture1",
 			type: "Palm.Picture",
-			l: "10",
-			r: "10",
-			w: "80%",
+			l: 0,
+			w: "105%",
 			t: 0,
-			h: 234
+			h: "100%"
 		}
 	]
 });

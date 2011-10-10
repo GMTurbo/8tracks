@@ -2,21 +2,23 @@ function PlayerAssistant(argFromPusher, token, response, mixphoto, setid, userid
 	this.mixID = argFromPusher;
 	this.token = token;
 	this.userid = -1;
-	this.loggedin = false;
-	if (userid !== -1) {
-		this.liked = liked == "unlike";
-		this.userid = userid;
-		this.username = username;
-		this.password = password;
+	this.snapindex = 0;
+	creds = checkForCredentials();
+	this.loggedin = creds.loggedin;
+	if (creds.userid !== -1) {
+		this.liked = liked;
+		this.userid = creds.userid;
+		this.username = creds.username;
+		this.password = creds.password;
 		this.loggedin = true;
 	}
 	this.toggle = false;
-	this.tracks = new Array();
+	this.tracks = [];
 	this.tracks.push(response.set.track);
 	this.trackinfo = response;
-	this.mphoto = mixphoto.toString() === "/images/mix_covers/original.gif" ? Mojo.appPath + "/images/tracks_01.png" : mixphoto;
+	this.mphoto = mixphoto.toString() === "/images/mix_covers/max200.gif" ? Mojo.appPath + "/images/tracks_01.png" : mixphoto;
 	this.lastsong = false;
-	this.songProps = new Array(); //skipped durations liked
+	this.songProps = []; //skipped durations liked
 	this.toReadableTime = function(duration) {
 		var minutes = parseFloat(duration) / 60.0;
 		var seconds = Math.round((minutes % 1) * 60);
@@ -91,7 +93,7 @@ function PlayerAssistant(argFromPusher, token, response, mixphoto, setid, userid
 						title: tracks[i].name,
 						currentartist: tracks[i].performer,
 						skipped: tracks[i].name,
-						likeImage: this.songProps[i].liked === true ? "images/likedstar.png" : "images/unlikedstar.png",
+						likeImage: this.songProps[i].liked === true ? "images/likedstar.png" : "images/unlikedstarblack.png",
 						duration: this.songProps[i].duration.toString() === "NaN:NaN" ? "?" : this.songProps[i].duration,
 						liked: this.songProps[i].liked,
 						buyImage: "images/buy.png"
@@ -101,7 +103,7 @@ function PlayerAssistant(argFromPusher, token, response, mixphoto, setid, userid
 						title: tracks[i].name,
 						currentartist: tracks[i].performer,
 						oldsong: tracks[i].name,
-						likeImage: this.songProps[i].liked === true ? "images/likedstar.png" : "images/unlikedstar.png",
+						likeImage: this.songProps[i].liked === true ? "images/likedstar.png" : "images/unlikedstarblack.png",
 						duration: this.songProps[i].duration.toString() == "NaN:NaN" ? "?" : this.songProps[i].duration,
 						liked: this.songProps[i].liked,
 						buyImage: "images/buy.png"
@@ -117,7 +119,7 @@ function PlayerAssistant(argFromPusher, token, response, mixphoto, setid, userid
 					currentartist: tracks[i].performer,
 					currentsong: tracks[i].name,
 					buyImage: "images/speaker.png",
-					likeImage: this.songProps[i].liked === true ? "images/likedstar.png" : "images/unlikedstar.png",
+					likeImage: this.songProps[i].liked === true ? "images/likedstar.png" : "images/unlikedstarblack.png",
 					duration: "...",
 					liked: this.songProps[i].liked
 				};
@@ -125,6 +127,31 @@ function PlayerAssistant(argFromPusher, token, response, mixphoto, setid, userid
 		}
 		listModel = {
 			items: this.list.reverse()
+		};
+		return {
+			getList: function() {
+				return listModel;
+			}
+		};
+	};
+	this.fillCommentList = function(comments, userid) {
+		commentlist = new Array(comments.length);
+		//new Date(tracks[i].first_published_at).toRelativeTime() === "NaN years ago" ? "by " + tracks[i].user.login : new Date(tracks[i].first_published_at).toRelativeTime()
+		for (var i = 0; i < comments.length; i++) {
+			commentlist[i] = {
+				username: comments[i].user.login,
+				userid: comments[i].user_id,
+				timestamp: new Date(comments[i].created_at).toRelativeTime() === "NaN years ago" ? comments[i].created_at : new Date(comments[i].created_at).toRelativeTime(),
+				body: comments[i].body,
+				otheruserimage: comments[i].user.avatar_urls.sq56 === "/images/avatars/sq56.jpg" ? "images/unknownUser.jpg" : comments[i].user.avatar_urls.sq56,
+				myuserimage: comments[i].user.avatar_urls.sq56 === "/images/avatars/sq56.jpg" ? "images/unknownUser.jpg" : comments[i].user.avatar_urls.sq56,
+				hide: userid === comments[i].user_id ? "hide" : "",
+				show: userid === comments[i].user_id ? "show" : "",
+				right: userid === comments[i].user_id ? "right" : ""
+			};
+		}
+		listModel = {
+			items: commentlist.reverse()
 		};
 		return {
 			getList: function() {
@@ -185,6 +212,17 @@ PlayerAssistant.prototype = {
 			menuClass: 'no-fade'
 		},
 		this.cmdMenuModel);
+
+		var atts = {
+			textFieldName: 'comment',
+			hintText: 'Enter comment',
+			modelProperty: 'value',
+			multiline: true,
+			limitResize: false
+		};
+		this.controller.setupWidget('multilineTextField', atts, {});
+		Mojo.Event.listen(this.controller.get("addcomment"), Mojo.Event.tap, this.addComment.bind(this));
+		Mojo.Event.listen(this.controller.get("sendbuttonid"), Mojo.Event.tap, this.postComment.bind(this));
 		this.cookie3 = new Mojo.Model.Cookie("nmp");
 		if (!this.cookie3.get()) {
 			nmpState = 'autoplay';
@@ -248,8 +286,6 @@ PlayerAssistant.prototype = {
 			},
 			onSuccess: this.handleBluetooth.bind(this)
 		});
-
-
 		if (this.audio1.currentSrc.length > 0) {
 			this.removeListeners();
 			this.audio1.pause();
@@ -261,9 +297,18 @@ PlayerAssistant.prototype = {
 			name: "mediaextension",
 			version: "1.0"
 		});
-		this.extObj = this.libs.mediaextension.MediaExtension.getInstance(this.audio1);
-		this.extObj.audioClass = "media";
+		try {
+			this.extObj = this.libs.mediaextension.MediaExtension.getInstance(this.audio1);
+			this.extObj.audioClass = "media";
+		}
+		catch(err) {
+			//this.banner(err);
+		}
+
+		Mojo.Event.listen(this.controller.document, Mojo.Event.stageDeactivate, this.onDeactivateHandler.bind(this));
+		Mojo.Event.listen(this.controller.document, Mojo.Event.stageActivate, this.onActivateHandler.bind(this));
 		Ares.setupSceneAssistant(this);
+		Mojo.Event.listen(this.controller.get("scroller1"), Mojo.Event.propertyChange, this.handleUpdate.bind(this));
 	},
 	cleanup: function() {
 		DashPlayerInstance.cleanup();
@@ -278,7 +323,12 @@ PlayerAssistant.prototype = {
 		if (this.bluetoothService) {
 			this.bluetoothService.cancel();
 		}
-
+		Mojo.Event.stopListening(this.controller.document, Mojo.Event.stageDeactivate, this.onDeactivateHandler.bind(this));
+		Mojo.Event.stopListening(this.controller.document, Mojo.Event.stageActivate, this.onActivateHandler.bind(this));
+		Mojo.Event.stopListening(this.controller.get("scroller1"), Mojo.Event.propertyChange, this.handleUpdate.bind(this));
+		Mojo.Event.stopListening(this.controller.get("addcomment"), Mojo.Event.tap, this.addComment.bind(this));
+		Mojo.Event.stopListening(this.controller.get("sendbuttonid"), Mojo.Event.tap, this.postComment.bind(this));
+		this.onActivateHandler();
 		Ares.cleanupSceneAssistant(this);
 	},
 	activate: function() {
@@ -291,7 +341,9 @@ PlayerAssistant.prototype = {
 				textColor: props.textColor
 			});
 		}
-		this.controller.setWidgetModel("html2", {pic2: this.mphoto});
+		this.controller.setWidgetModel("html2", {
+			pic2: this.mphoto
+		});
 		songprop = {
 			skipped: false,
 			duration: 0,
@@ -312,27 +364,179 @@ PlayerAssistant.prototype = {
 		DashPlayerInstance.setLikeToggleEvent(this.setLikeStateCurrent.bind(this));
 		DashPlayerInstance.setLogin(this.loggedin);
 		DashPlayerInstance.update(this.audio1, this.mphoto, this.trackinfo);
+		this.loadComments();
+		//this.finishEvent("test",true);
+	},
+	finishEvent: function(message, state) {
+		var dashboardStage = this.controller.stageController.getAppController().getStageProxy("mixDetailsScene");
+		if (dashboardStage) {
+			data = {
+				state: state,
+				message: message
+			};
+			dashboardStage.delegateToSceneAssistant("finishedDad", data);
+		}
+	},
+	handleUpdate: function(event) {
+		switch (event.value) {
+		case 0:
+			//this.controller.get("overlayHeart").removeClassName("move");
+			//this.controller.get("overlayNewMix").removeClassName("move");
+			//	$('overlayMix').style.top = "55px";
+			$('addcomment').style.right = "-55px";
+			//$('overlayImage').removeClassName("fade");
+			$('inputcomment').style.bottom = "-600px";
+			$('inputcomment').style.left = "-320px";
+			$('inputcomment').style.height = "0px";
+			$('inputcomment').removeClassName("show");
+			$('sendbuttonid').removeClassName("show");
+			this.controller.get("multilineTextField").mojo.setValue("");
+			this.controller.get("multilineTextField").blur();
+			this.snapindex = 0;
+			break;
+		case 1:
+			//this.controller.get("overlayHeart").addClassName("move");
+			//this.controller.get("overlayNewMix").addClassName("move");
+			//$('overlayMix').style.top = "-72px";
+			$('addcomment').style.right = "0px";
+			//$('overlayImage').addClassName("fade");
+			//$('inputcomment').addClassName("show");
+			//$('sendbuttonid').addClassName("show");
+			/*$('inputcomment').style.bottom = "100px";
+			$('inputcomment').style.left = "25px";
+			$('inputcomment').style.height = "120px";
+			*/
+			this.snapindex = 1;
+			break;
+		}
+	},
+	addComment: function(event) {
+		$('inputcomment').addClassName("show");
+		$('inputcomment').style.bottom = "100px";
+		$('inputcomment').style.left = "25px";
+		$('inputcomment').style.height = "120px";
+		$('sendbuttonid').addClassName("show");
+		
+		//$('inputcomment').removeClassName("shrink");
+
+		this.controller.get("multilineTextField").focus();
+		//this.controller.get("multilineTextField").mojo.setValue("");
+	},
+	postComment: function() {
+		if (this.loggedin) {
+			this.showSpinner(true);
+			//"review[mix_id]=14&review[body]=body" http://8tracks.com/reviews.xml
+			$('inputcomment').style.bottom = "-600px";
+			$('inputcomment').style.left = "-320px";
+			$('inputcomment').style.height = "0px";
+			$('inputcomment').addClassName("shrink");
+			//$('sendbuttonid').removeClassName("show");
+			this.controller.get("multilineTextField").blur();
+			var message = this.controller.get("multilineTextField").mojo.getValue();
+			var onFailure = function(transport) {
+				this.showSpinner(false);
+				this.popUp("Error", "Could not post comment\n" + transport.responseText, this.controller);
+			};
+			var onComplete = function(transport) {
+				this.loadComments();
+				this.showSpinner(false);
+				/*$('inputcomment').style.bottom = "-600px";
+			$('inputcomment').style.left = "-320px";
+			$('inputcomment').style.height = "0px";
+			$('sendbuttonid').removeClassName("show");
+			this.controller.get("multilineTextField").blur();
+			this.controller.get("multilineTextField").mojo.setValue("");*/
+			};
+			var postdata = "login=" + this.username + "&password=" + this.password;
+			var url = "http://8tracks.com/reviews.xml";
+			var postbody = "review[mix_id]=" + this.mixID.id + "&review[body]=" + message.replace(/ /g, "%20");
+			post(url, postdata, onComplete.bind(this), onFailure.bind(this), postbody);
+		} else {
+			this.banner("login required to comment");
+		}
+	},
+	updateDash: function(audioObj, pic, trackinfo) {
+		var dashboardStage = this.controller.stageController.getAppController().getStageProxy("dashboard");
+		if (dashboardStage) {
+			data = {
+				type: 'audio',
+				audio: audioObj,
+				photo: pic,
+				trackinfo: trackinfo
+			};
+			dashboardStage.delegateToSceneAssistant("updateDashboard", data);
+		}
+	},
+	sendMessageToDash: function(message) {
+		var dashboardStage = this.controller.stageController.getAppController().getStageProxy("dashboard");
+		if (dashboardStage) {
+			data = {
+				type: 'error',
+				text: message
+			};
+			dashboardStage.delegateToSceneAssistant("updateDashboard", data);
+		}
+	},
+	setDashLikeState: function(state) {
+		var dashboardStage = this.controller.stageController.getAppController().getStageProxy("dashboard");
+		if (dashboardStage) {
+			data = {
+				type: 'likeState',
+				state: state
+			};
+			dashboardStage.delegateToSceneAssistant("updateDashboard", data);
+		}
+	},
+
+	onDeactivateHandler: function(event) {
+		if (DashPlayerInstance !== 0) {
+			if (DashPlayerInstance.audio() !== 0) {
+				var dashboardController = this.controller.stageController.getAppController().getStageController("dashboard");
+				if (!dashboardController) {
+					this.controller.stageController.getAppController().createStageWithCallback({
+						name: "dashboard",
+						lightweight: true,
+						clickableWhenLocked: true
+					},
+					this.loadDashboard, 'dashboard');
+				}
+			}
+		}
+	},
+	loadDashboard: function(stageController) {
+		stageController.pushScene("dashboard", DashPlayerInstance);
+	},
+	onActivateHandler: function(event) {
+		var dashboardController = Mojo.Controller.getAppController().getStageController("dashboard");
+		if (dashboardController) {
+			this.appController = Mojo.Controller.getAppController();
+			this.appController.closeStage("dashboard");
+		}
 	},
 	showSpinner: function(show) {
 		if (!show) {
 			this.feedMenuModel.items[0].items[1].width = 320;
 			this.feedMenuModel.items[0].items[0].width = 0;
 			this.controller.modelChanged(this.feedMenuModel, this);
+			this.controller.get('spinner1').mojo.stop();
 		} else {
 			this.feedMenuModel.items[0].items[1].width = 275;
 			this.feedMenuModel.items[0].items[0].width = 45;
 			this.controller.modelChanged(this.feedMenuModel, this);
+			this.controller.get('spinner1').mojo.start();
 		}
-		this.$.spinner1.setSpinning(show);
 	},
-
 	showBanner: function(message) {
 		Mojo.Controller.getAppController().showBanner(message, {
 			source: 'notification'
 		});
 	},
-	showErrorBanner: function(msg){
-		Mojo.Controller.getAppController().showBanner({icon: "alert.png",messageText: msg},msg);
+	showErrorBanner: function(msg) {
+		Mojo.Controller.getAppController().showBanner({
+			icon: "alert.png",
+			messageText: msg
+		},
+		msg);
 	},
 	handleheadset: function(payload) {
 		switch (payload.state) {
@@ -366,7 +570,6 @@ PlayerAssistant.prototype = {
 			}
 		}
 	},
-
 	modifyListElementDuration: function() {
 		if (this.audio1.duration.toString() !== "Infinity" || this.audio1.duration.toString() !== "undefined") {
 			if (this.list[0].duration === "...") {
@@ -386,12 +589,39 @@ PlayerAssistant.prototype = {
 			if (this.audio1.currentTime + 2 > this.audio1.buffered.end()) {
 				if (Math.ceil(this.audio1.buffered.end()) != Math.ceil(this.audio1.duration)) {
 					this.songState(0);
-					this.load();
+					//this.load();
 				}
 			}
 		}
 	},
+	loadComments: function() {
+		this.showSpinner(true);
+		var onComplete = function(response) {
+			f = this.fillCommentList(response.responseJSON.reviews, this.userid);
+			this.controller.setWidgetModel("list2", f.getList());
+			//this.ready = true;
+			//this.$.list1.items = this.commentlist;
+			//	this.controller.get("list1").mojo.noticeUpdatedItems(0, this.commentlist); //noticeAddedItems
+			//	this.controller.get("list1").mojo.setLength(this.commentlist.length);
+			//this.controller.setWidgetModel("html2", {
+			//	commentcount: f.getList().items.length === 50 ? f.getList().items.length + "+" : f.getList().items.length
+			//});
+			var self = this;
+			this.controller.window.setTimeout(function() {
+				self.controller.get("scroller5").mojo.revealBottom();
+			},
+			300);
+			spinner(false);
+		};
 
+		var onFailure = function(response) {
+			this.showBanner("error getting mix comments");
+			this.showSpinner(false);
+		};
+
+		var url = "http://8tracks.com/mixes/" + this.mixID.id + "/reviews.json?per_page=50";
+		request(url, onComplete.bind(this), onFailure.bind(this));
+	},
 	requestNext: function(url, onComplete, onFailure) {
 		this.showSpinner(true);
 		this.model.progress = 0;
@@ -424,7 +654,9 @@ PlayerAssistant.prototype = {
 			if (transport.status == 200) {
 				this.showBanner("New Mix: " + transport.responseJSON.next_mix.name);
 				this.mphoto = transport.responseJSON.next_mix.cover_urls.max200;
-				this.controller.setWidgetModel("html2", {pic2: this.mphoto});
+				this.controller.setWidgetModel("html2", {
+					pic2: this.mphoto
+				});
 				this.model.progress = 0;
 				this.controller.modelChanged(this.model, this);
 				this.mixID = transport.responseJSON.next_mix;
@@ -447,7 +679,6 @@ PlayerAssistant.prototype = {
 						this.trackinfo = response;
 						this.lastsong = false;
 						this.songProps = [];
-						this.songProps = new Array();
 						songprop = {
 							skipped: false,
 							duration: 0,
@@ -458,6 +689,7 @@ PlayerAssistant.prototype = {
 						this.listindex = 0;
 						this.songstate = 1;
 						DashPlayerInstance.update(this.audio1, this.mphoto, this.trackinfo);
+						this.updateDash(this.audio1, this.mphoto, this.trackinfo);
 						this.showBanner("Now Playing: " + transport.responseJSON.set.track.performer + " - " + transport.responseJSON.set.track.name);
 						this.populateList();
 						this.writeDescription();
@@ -507,20 +739,22 @@ PlayerAssistant.prototype = {
 					this.tracks.push(transport.responseJSON.set.track);
 					this.trackinfo = transport.responseJSON;
 					DashPlayerInstance.update(this.audio1, this.mphoto, this.trackinfo);
+					this.updateDash(this.audio1, this.mphoto, this.trackinfo);
 					this.populateList();
 					this.writeDescription();
 				} else {
 					this.loadNextMix2();
 				}
 			} else if (transport.status === "403 Forbidden") {
-				this.sound.src = Mojo.appPath + "/sounds/error.mp3";
-				this.sound.play();
+				Mojo.Controller.getAppController().playSoundNotification("defaultapp", "sounds/error.mp3");
 				this.Popup("Oops!", "Can't skip anymore");
+				this.sendMessageToDash("No more skips allowed");
 			}
 		};
 		var onFailure = function(transport) {
 			this.showSpinner(false);
 			this.Popup("Oops", "No more skips allowed...");
+			this.sendMessageToDash("No more skips allowed");
 		};
 		var url = "http://8tracks.com/sets/" + this.token + "/skip.json?mix_id=" + this.mixID.id;
 		this.requestNext(url, onComplete.bind(this), onFailure.bind(this));
@@ -528,7 +762,9 @@ PlayerAssistant.prototype = {
 	askForNMPref: function() {
 		this.sound.src = Mojo.appPath + "/sounds/error.mp3";
 		this.sound.load();
-		this.sound.play();
+		//this.sound.play();
+		Mojo.Controller.getAppController().playSoundNotification("defaultapp", "sounds/error.mp3");
+		this.sendMessageToDash("Input Required!");
 		this.controller.showAlertDialog({
 			onChoose: this.setMixPref.bind(this),
 			title: "Nex Mix Preference",
@@ -604,6 +840,7 @@ PlayerAssistant.prototype = {
 					this.tracks.push(transport.responseJSON.set.track);
 					this.trackinfo = transport.responseJSON;
 					DashPlayerInstance.update(this.audio1, this.mphoto, this.trackinfo);
+					this.updateDash(this.audio1, this.mphoto, this.trackinfo);
 					this.populateList();
 					this.writeDescription();
 				} else {
@@ -612,6 +849,7 @@ PlayerAssistant.prototype = {
 			} else if (transport.status === "403 Forbidden") {
 				this.showSpinner(false);
 				this.banner("Can't skip anymore");
+				this.sendMessageToDash("No more skips allowed");
 			}
 		};
 		var onFailure = function(transport) {
@@ -661,26 +899,31 @@ PlayerAssistant.prototype = {
 		this.sound.pause();
 		this.sound.src = Mojo.appPath + "/sounds/error.mp3";
 		this.sound.load();
-		this.sound.play();
+		//this.sound.play();
+		Mojo.Controller.getAppController().playSoundNotification("defaultapp", "sounds/error.mp3");
 		switch (this.audio1.error.code) {
 		case 1:
 			title = "Denied";
 			message = "8tracks denied this song for you to stream!";
+			this.sendMessageToDash("denied stream from server");
 			this.Popup(title, message);
 			break;
 		case 2:
 			title = "Network Error";
 			message = "There is a problem fetching this song from the 8tracks servers.. Let's try the next one!";
+			this.sendMessageToDash(title);
 			this.Popup(title, message);
 			break;
 		case 3:
 			title = "Decode Error";
 			message = "Error decoding the song!";
+			this.sendMessageToDash("error decoding song");
 			this.Popup(title, message);
 			break;
 		case 4:
 			title = "Not Supported type!";
 			message = "How did this happen?!";
+			this.sendMessageToDash(title);
 			this.Popup(title, message);
 			break;
 		}
@@ -740,38 +983,24 @@ PlayerAssistant.prototype = {
 	list1Listtap: function(inSender, event) {
 		var selected = this.tracks[this.tracks.length - event.index - 1];
 		classname = event.originalEvent.target.className;
-
 		if (classname === "likeimg") {
-				if(this.loggedin){
-					event.item.liked = !event.item.liked;
-					this.songProps[this.tracks.length - event.index - 1].liked = event.item.liked;
-					this.setLikeState(selected, !event.item.liked);
-				}else{
-					this.showErrorBanner("login required to like songs");
-				}
+			if (this.loggedin) {
+				event.item.liked = !event.item.liked;
+				this.songProps[this.tracks.length - event.index - 1].liked = event.item.liked;
+				this.setLikeState(selected, !event.item.liked);
+			} else {
+				this.showErrorBanner("login required to like songs");
+			}
 		} else if (classname === "buyimg") {
-	//	if (event.originalEvent.target.src.indexOf("speaker") < 0) {
 			this.Buy(selected.buy_link, selected.performer, selected.name);
-		//	}
 		} else {
 			this.controller.popupSubmenu({
 				onChoose: this.popupHandler,
 				placeNear: event.originalEvent.target,
-				items: [
-		//			{
-		//			label: 'Buy',
-		//			command: 'buy'
-		//		},
-					{
+				items: [{
 					label: 'Write it down',
 					command: 'save'
-				}
-		//			{
-		//			label: event.item.liked ? "Unlike" : "Like",
-		//			command: event.item.liked ? 'unlksong' : 'lksong',
-		//			disabled: !this.loggedin
-		//		}
-		]
+				}]
 			});
 		}
 	},
@@ -841,11 +1070,13 @@ PlayerAssistant.prototype = {
 	},
 	songLiked: function(transport) {
 		DashPlayerInstance.updateLike(true);
+		this.setDashLikeState(true);
 		this.banner("You like " + this.song.name);
 		this.populateList();
 	},
 	songUnliked: function(transport) {
-		DashPlayerInstance.updateLike(true);
+		DashPlayerInstance.updateLike(false);
+		this.setDashLikeState(false);
 		this.banner("You don't like " + this.song.name + " anymore");
 		this.populateList();
 	},
@@ -905,7 +1136,8 @@ PlayerAssistant.prototype.handleCommand = function(event) {
 			this.sound.pause();
 			this.sound.src = Mojo.appPath + "/sounds/nextmix.mp3";
 			this.sound.load();
-			this.sound.play();
+			//this.sound.play();
+			//Mojo.Controller.getAppController().playSoundNotification("defaultapp", "sounds/nextmix.mp3");
 			this.skipTrack();
 			break;
 		case 'back':
@@ -918,13 +1150,24 @@ PlayerAssistant.prototype.handleCommand = function(event) {
 			this.songState(0);
 			break;
 		case 'share':
-			this.controller.serviceRequest("palm://com.palm.applicationManager", {
+			/*this.controller.serviceRequest("palm://com.palm.applicationManager", {
 				method: 'open',
 				parameters: {
 					id: "com.palm.app.email",
 					params: {
 						summary: "Checkout this 8tracks mix!",
 						text: "Checkout this Mix: \n" + this.mixID.name + "\nwww.8tracks.com" + this.mixID.path
+					}
+				}
+			});*/
+			this.controller.serviceRequest("palm://com.palm.applicationManager", {
+				method: 'open',
+				parameters: {
+					id: "com.palm.app.email",
+					params: {
+						summary: "Checkout this 8tracks mix",
+						//text: "<b><br><a href=\"www.8tracks.com"+this.mixInfo.path+"\">"+this.mixInfo.name+"</a>" + "</b><br><br><i>" + this.mixInfo.description +"</i>"
+						text: "<b>" + this.mixID.name + "</b><br><br><i>" + this.mixID.description + "</i><br><br><a href=\"www.8tracks.com" + this.mixID.path + "\">" + "Listen to this!" + "</a>"
 					}
 				}
 			});
@@ -943,12 +1186,19 @@ PlayerAssistant.prototype.handleCommand = function(event) {
 			break;
 		}
 	} else if (event.type === Mojo.Event.back) {
-		data = {
-			mixInfo: this.mixID,
-			likedMix: this.liked
-		};
-		event.stop();
-		this.controller.stageController.popScene(data);
+		if ($('inputcomment').style.bottom !== "-600px") {
+			$('inputcomment').style.bottom = "-600px";
+			$('inputcomment').style.left = "-320px";
+			$('inputcomment').style.height = "0px";
+			$('sendbuttonid').removeClassName("show");
+			//$('inputcomment').addClassName("shrink");
+			this.controller.get("multilineTextField").mojo.setValue("");
+			this.controller.get("multilineTextField").blur();
+			event.stop();
+		} else if (this.snapindex === 1) {
+			this.controller.get("bodyScroller").mojo.setSnapIndex(0, true);
+			event.stop();
+		}
 	}
 };
 

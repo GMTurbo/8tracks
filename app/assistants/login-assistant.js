@@ -38,7 +38,7 @@ LoginAssistant.prototype = {
 		}
 	},
 
-	login: function(username, password) {
+	/*login: function(username, password) {
 		var postdata = "login=" + username + "&password=" + password;
 
 		var myAjax = new Ajax.Request(url, {
@@ -47,9 +47,45 @@ LoginAssistant.prototype = {
 			onComplete: onComplete,
 			onFailure: onFailure
 		});
+	},*/
+login: function(username, password) {
+		this.showSpinner(true);
+		var onComplete = function(transport) {
+			if (transport.responseJSON.status === "200 OK") {
+				cookie = new Mojo.Model.Cookie("credentials");
+				cookie.put({
+					username: username,
+					password: password,
+					token: transport.responseJSON.auth_token,
+					userid: transport.responseJSON.current_user.id,
+					avatar: transport.responseJSON.current_user.avatar_urls.sq56
+				});
+				this.username = username;
+				this.password = password;
+				this.userid = transport.responseJSON.current_user.id;
+				this.loggedin = true;
+				this.showBanner("You are now logged in as " + this.username);
+				//this.appMenuModel.items[0].label = "Logout " + username;
+				//this.appMenuModel.items[0].command = "logout";
+				//this.controller.modelChanged(this.appMenuModel, this);
+				//this.populateUserLists(cookie);
+				this.creds = checkForCredentials();
+				//this.tellPlayer();
+				this.showSpinner(false);
+				var data = {
+					creds: this.creds
+				};
+				this.controller.stageController.popScene(data);
+			} else {
+				this.popUp(tranport.responseJSON.status, transport.responseJSON.statusText, this.controller);
+			}
+		};
+		var onFailure = function(transport) {
+			this.popUp(tranport.responseJSON.status, transport.responseJSON.statusText, this.controller);
+		};
+		loginTo8tracks(username, password, onComplete.bind(this), onFailure.bind(this));
 	},
-
-	requestLogin: function(onComplete, onFailure) {
+	/*requestLogin: function(onComplete, onFailure) {
 		url = "http://8tracks.com/sessions.json";
 		this.username = this.controller.get("textField1").mojo.getValue();
 		this.password = this.controller.get("passwordField1").mojo.getValue();
@@ -62,14 +98,15 @@ LoginAssistant.prototype = {
 			onComplete: onComplete,
 			onFailure: onFailure
 		});
-	},
+	},*/
 	showBanner: function(message) {
 		Mojo.Controller.getAppController().showBanner(message, {
 			source: 'notification'
 		});
 	},
 	activityButton1Tap: function(inSender, event) {
-		this.showSpinner(true);
+		this.login( this.controller.get("textField1").mojo.getValue(),this.controller.get("passwordField1").mojo.getValue());
+	/*	this.showSpinner(true);
 		var onComplete = function(transport) {
 			if (transport.responseJSON.status === "200 OK") {
 				this.cookie = new Mojo.Model.Cookie("credentials");
@@ -95,6 +132,6 @@ LoginAssistant.prototype = {
 			this.popUp(tranport.responseJSON.status, transport.responseJSON.statusText);
 		};
 		this.requestLogin(onComplete.bind(this), onFailure.bind(this));
-		this.showSpinner(false);
+		this.showSpinner(false);*/
 	}
 };

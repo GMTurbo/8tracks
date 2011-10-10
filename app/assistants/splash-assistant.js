@@ -26,8 +26,13 @@ SplashAssistant.prototype = {
 		Ares.cleanupSceneAssistant(this);
 	},
 	activate: function() {
-		this.$.picture1.setSrc(Mojo.appPath + "images/logo.png");
-		this.cookie = new Mojo.Model.Cookie("credentials");
+		//this.$.picture1.setSrc(Mojo.appPath + "images/splash.png");
+		cook = new Mojo.Model.Cookie("prefs");
+		cook.put({
+			 theme: 'flat'
+		});
+		this.creds = checkForCredentials();
+		/*this.cookie = new Mojo.Model.Cookie("credentials");
 		if (this.cookie.get()) {
 			this.username = this.cookie.get().username;
 			this.password = this.cookie.get().password;
@@ -37,9 +42,9 @@ SplashAssistant.prototype = {
 			} else {
 				this.checkConnection();
 			}
-		} else {
+		} else {*/
 			this.checkConnection();
-		}
+		//}
 	},
 	checkConnection: function() {
 		this.controller.serviceRequest('palm://com.palm.connectionmanager', {
@@ -123,13 +128,15 @@ SplashAssistant.prototype = {
 			return "mine";
 		case 'defmix:fol':
 			return "recent";
+		case 'defmix:mf':
+			return "mixfeed";
 		}
 	},
 	begin: function(inSender, event) {
 		var onComplete = function(transport) {
 			if (200 === transport.status) {
 				var tracks = transport.responseJSON.mixes;
-				this.controller.stageController.swapScene('gridScene', tracks, transport.responseJSON.total_entries, transport.responseJSON.mix_set_id, this.loggedin, this.username, this.password, this.userid, this.type);
+				this.controller.stageController.swapScene('gridScene', tracks, transport.responseJSON.total_entries, transport.responseJSON.mix_set_id, this.creds.loggedin, this.creds.username, this.creds.password, this.creds.userid, this.type);
 			}
 		};
 
@@ -138,7 +145,7 @@ SplashAssistant.prototype = {
 			Mojo.Log.info("Failed to login");
 		};
 		this.type = this.getDefaultMix();
-		if((this.type === "liked" && this.userid === -1)||(this.type === "mine" && this.userid === -1)){ // liked mix not available when you're not logged in
+		if((this.type === "liked" && this.userid === -1)||(this.type === "mine" && this.userid === -1)||(this.type === "mixfeed" && this.userid === -1)){ // liked mix not available when you're not logged in
 			this.type = "recent";
 			cookie3 = new Mojo.Model.Cookie("defaultMix");
 			cookie3.put({
@@ -152,6 +159,8 @@ SplashAssistant.prototype = {
 			url = "http://8tracks.com/users/" + this.userid + "/mixes.json";
 		} else if (this.type === "featured") {
 			url = "http://8tracks.com/mix_sets/featured.json?per_page=10&page=1";
+		} else if (this.type === "mixfeed") {
+			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&per_page=12";
 		} else {
 			url = "http://8tracks.com/mixes.json?page=1&sort="+ this.type;
 		}

@@ -6,7 +6,7 @@ function GridSceneAssistant(argFromPusher, pagecount, setid, loggedin, username,
 		this.userid = userid;
 		this.username = username;
 		this.password = password;
-		this.mixCount = 8;
+		this.mixCount = 9;
 	}
 	this.sCount = 1;
 	this.tracks = argFromPusher;
@@ -84,6 +84,14 @@ function GridSceneAssistant(argFromPusher, pagecount, setid, loggedin, username,
 			this.typelabel = "Following";
 		}
 		break;
+	case 'mixfeed':
+		this.sCount = 8;
+		if (this.type !== "mixfeed") {
+			reload = true;
+			this.type = "mixfeed";
+			this.typelabel = "Mix Feed";
+		}
+		break;
 	}
 	this.loaded = false;
 	this.getNextMix = function(count, total) {
@@ -128,7 +136,9 @@ function GridSceneAssistant(argFromPusher, pagecount, setid, loggedin, username,
 				mixInfo: tracks[i],
 				set_id: this.setid,
 				type: "mix",
-				timeSince: new Date(tracks[i].first_published_at).toRelativeTime().toString() === "NaN years ago" ? "by " + tracks[i].user.login : new Date(tracks[i].first_published_at).toRelativeTime() + " by " + tracks[i].user.login
+				//timeSince: new Date(tracks[i].first_published_at).toRelativeTime().toString() === "NaN years ago" ? "by " + tracks[i].user.login : new Date(tracks[i].first_published_at).toRelativeTime() + " by " + tracks[i].user.login
+				timeSince: new Date(tracks[i].first_published_at).toRelativeTime().toString() === "NaN years ago" ? "" : new Date(tracks[i].first_published_at).toRelativeTime().toString(),
+				creator: tracks[i].user.login
 			};
 		}
 		listModel = {
@@ -214,7 +224,7 @@ GridSceneAssistant.prototype = {
 				items: [{
 					width: 0
 				},
-					{
+				{
 					label: "8tracks",
 					width: 320
 				}]
@@ -247,7 +257,7 @@ GridSceneAssistant.prototype = {
 				{
 				label: "Support",
 				command: 'support'
-			},
+			},/*
 				{
 				label: $L("Themes"),
 				items: [
@@ -282,8 +292,8 @@ GridSceneAssistant.prototype = {
 					iconPath: thm == 'red' ? Mojo.appPath + "/images/check_mark.png" : "none"
 				}
 					]
-			},
-			{
+			},*/
+				{
 				label: $L("Default Mix"),
 				items: [
 					{
@@ -321,6 +331,12 @@ GridSceneAssistant.prototype = {
 					label: "My Mixes",
 					command: 'defmix:mm',
 					iconPath: defmix == 'defmix:mm' ? Mojo.appPath + "/images/check_mark.png" : "none",
+					disabled: !this.loggedin
+				},
+					{
+					label: "Mix Feed",
+					command: 'defmix:mf',
+					iconPath: defmix == 'defmix:mf' ? Mojo.appPath + "/images/check_mark.png" : "none",
 					disabled: !this.loggedin
 				}
 					]
@@ -375,27 +391,32 @@ GridSceneAssistant.prototype = {
 
 		if (response) {
 			if (typeof response.search === "undefined") {
-				this.loggedin = response.loggedin;
-				this.username = response.username;
-				this.password = response.password;
-				this.userid = response.id;
-				this.appMenuModel.items[0].command = "logout";
-				this.appMenuModel.items[0].label = "Logout " + this.username;
-				this.appMenuModel.items[3].items[5].disabled = false;
-				this.appMenuModel.items[3].items[6].disabled = false;
-				this.mixCount = 8;
-				this.controller.modelChanged(this.appMenuModel, this);
+				if (typeof response.scene === "undefined") {
+					this.loggedin = response.creds.loggedin;
+					this.username = response.creds.username;
+					this.password = response.creds.password;
+					this.userid = response.creds.userid;
+					this.appMenuModel.items[0].command = "logout";
+					this.appMenuModel.items[0].label = "Logout " + this.username;
+					this.appMenuModel.items[3].items[5].disabled = false;
+					this.appMenuModel.items[3].items[6].disabled = false;
+					this.appMenuModel.items[3].items[7].disabled = false;
+					this.mixCount = 9;
+					this.controller.modelChanged(this.appMenuModel, this);
+				}
 			}
 		}
 		if (!this.loaded) {
 			//this.showBanner("Just Type to Search...");
 			this.loaded = true;
 		}
-		if (this.type != "followed" && typeof response ==="undefined") {
+		if (this.type != "followed" && typeof response === "undefined") {
 			f = this.fillList(this.tracks);
+			//this.loremList = f.getList().items;
+			//this.controller.modelChanged(this.loremListWidget,this);
 			this.controller.setWidgetModel("list1", f.getList());
 			this.writeDescription();
-		} else if(typeof response.search === "undefined" && typeof response.username === "undefined"){
+		} else if (typeof response.search === "undefined" && typeof response.username === "undefined" && typeof response.scene === "undefined") {
 			var onComplete = function(transport) {
 				if (transport.status === 200) {
 					this.currentpage = 1;
@@ -407,6 +428,7 @@ GridSceneAssistant.prototype = {
 					this.cmdMenuModel.items[2].items[0].label = this.typelabel;
 					this.controller.modelChanged(this.cmdMenuModel, this);
 					f = this.fillUserList(transport.responseJSON.users);
+					//this.loremList = f.getList().items;
 					this.controller.setWidgetModel("list1", f.getList());
 				}
 				this.showSpinner(false);
@@ -417,12 +439,12 @@ GridSceneAssistant.prototype = {
 			url = "http://8tracks.com/users/" + this.userid + "/follows_users.json";
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		}
-		
-		if(typeof response !== "undefined"){
-			if(typeof response.liked !== "undefined"){
-					if(this.type === "liked"){
-						this.popupChoose(mixKey("liked")); // repopulate liked list
-					}
+
+		if (typeof response !== "undefined") {
+			if (typeof response.liked !== "undefined") {
+				if (this.type === "liked") {
+					this.popupChoose(mixKey("liked")); // repopulate liked list
+				}
 			}
 		}
 		this.showSpinner(false);
@@ -440,6 +462,8 @@ GridSceneAssistant.prototype = {
 		}
 	},
 	MixChange: function(direction) {
+		var onComplete;
+		var onFailure;
 		this.sCount = this.getNextMix(this.sCount + direction, this.mixCount);
 		if (this.sCount < 0) {
 			this.sCount = this.mixCount - 1;
@@ -506,9 +530,16 @@ GridSceneAssistant.prototype = {
 				this.typelabel = "Following";
 			}
 			break;
+		case 8:
+			if (this.type !== "mixfeed") {
+				reload = true;
+				this.type = "mixfeed";
+				this.typelabel = "Mix Feed";
+			}
+			break;
 		}
 		if (reload && this.type !== "followed") {
-			var onComplete = function(transport) {
+			onComplete = function(transport) {
 				this.currentpage = 1;
 				this.controller.modelChanged(this.cmdMenuModel, this);
 				this.tracks = transport.responseJSON.mixes;
@@ -527,23 +558,25 @@ GridSceneAssistant.prototype = {
 				this.controller.setWidgetModel("list1", f.getList());
 				this.showSpinner(false);
 			};
-			var onFailure = function(transport) {
+			onFailure = function(transport) {
 				this.showSpinner(false);
 				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 			};
-			var url = "";
+			url = "";
 			if (this.type === "liked") {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked";
 			} else if (this.type === "mine") {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json";
 			} else if (this.type === "featured") {
 				url = "http://8tracks.com/mix_sets/featured.json?page=1";
+			} else if (this.type === "mixfeed") {
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&per_page=12";
 			} else {
 				url = "http://8tracks.com/mixes.json?page=1&sort=" + this.type;
 			}
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		} else if (reload && this.type === "followed") {
-			var onComplete = function(transport) {
+			onComplete = function(transport) {
 				if (transport.status === 200) {
 					this.currentpage = 1;
 					this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 12);
@@ -558,7 +591,7 @@ GridSceneAssistant.prototype = {
 				}
 				this.showSpinner(false);
 			};
-			var onFailure = function(transport) {
+			onFailure = function(transport) {
 				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 			};
 			url = "http://8tracks.com/users/" + this.userid + "/follows_users.json";
@@ -578,6 +611,8 @@ GridSceneAssistant.prototype = {
 		this.$.spinner1.setSpinning(show);
 	},
 	popupChoose: function(event) {
+		var onComplete;
+		var onFailure;
 		var reload = false;
 		switch (event) {
 		case "featured":
@@ -647,9 +682,17 @@ GridSceneAssistant.prototype = {
 				this.typelabel = "Following";
 			}
 			break;
+		case 'mixfeed':
+			this.sCount = 8;
+			if (this.type !== "mixfeed") {
+				reload = true;
+				this.type = "mixfeed";
+				this.typelabel = "Mix Feed";
+			}
+			break;
 		}
 		if (reload && this.type !== "followed") {
-			var onComplete = function(transport) {
+			onComplete = function(transport) {
 				this.currentpage = 1;
 				this.tracks = transport.responseJSON.mixes;
 				this.setid = transport.responseJSON.mix_set_id;
@@ -661,30 +704,31 @@ GridSceneAssistant.prototype = {
 				this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
 				this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
 				this.cmdMenuModel.items[2].items[0].label = this.typelabel;
-				//	this.cmdMenuModel.items[2].items[0].command = this.type;
 				this.controller.modelChanged(this.cmdMenuModel, this);
 				this.writeDescription();
 				f = this.fillList(this.tracks, transport.responseJSON.mix_set_id);
 				this.controller.setWidgetModel("list1", f.getList());
 				this.showSpinner(false);
 			};
-			var onFailure = function(transport) {
+			onFailure = function(transport) {
 				this.showSpinner(false);
 				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 			};
-			var url = "";
+			url = "";
 			if (this.type === "liked") {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked";
 			} else if (this.type === "mine") {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json";
 			} else if (this.type === "featured") {
 				url = "http://8tracks.com/mix_sets/featured.json?page=1";
-			} else {
+			} else if (this.type === "mixfeed") {
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&per_page=12";
+			}	else {
 				url = "http://8tracks.com/mixes.json?page=1&sort=" + this.type;
 			}
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		} else if (reload && this.type === "followed") {
-			var onComplete = function(transport) {
+			onComplete = function(transport) {
 				if (transport.status === 200) {
 					this.currentpage = 1;
 					this.pagecount = Math.ceil(parseInt(transport.responseJSON.total_entries, 0) / 12);
@@ -693,14 +737,13 @@ GridSceneAssistant.prototype = {
 					this.cmdMenuModel.items[1].items[0].disabled = this.currentpage === 1;
 					this.cmdMenuModel.items[1].items[1].disabled = this.currentpage === this.pagecount;
 					this.cmdMenuModel.items[2].items[0].label = this.typelabel;
-					//	this.cmdMenuModel.items[2].items[0].command = this.type;
 					this.controller.modelChanged(this.cmdMenuModel, this);
 					f = this.fillUserList(transport.responseJSON.users);
 					this.controller.setWidgetModel("list1", f.getList());
 				}
 				this.showSpinner(false);
 			};
-			var onFailure = function(transport) {
+			onFailure = function(transport) {
 				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 			};
 			url = "http://8tracks.com/users/" + this.userid + "/follows_users.json";
@@ -744,7 +787,9 @@ GridSceneAssistant.prototype = {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked&page=" + this.currentpage;
 			} else if (this.type === "featured") {
 				url = "http://8tracks.com/mix_sets/featured.json?per_page=10&page=" + this.currentpage;
-			} else {
+			} else if (this.type === "mixfeed") {
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&page=" + this.currentpage + "&per_page=12";
+			}	else {
 				url = "http://8tracks.com/mixes.json?page=" + this.currentpage + "&sort=" + this.type;
 			}
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
@@ -774,26 +819,89 @@ GridSceneAssistant.prototype = {
 			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked&page=" + this.currentpage;
 		} else if (this.type === "featured") {
 			url = "http://8tracks.com/mix_sets/featured.json?page=" + this.currentpage;
+		} else if (this.type === "mixfeed") {
+			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&page=" + this.currentpage + "&per_page=12";
 		} else {
 			url = "http://8tracks.com/mixes.json?page=" + this.currentpage + "&sort=" + this.type;
 		}
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	list1Listtap: function(inSender, event) {
-		if (event.item.type === "mix") {
+		if (event.originalEvent.target.id === "creator") {
+			user = event.originalEvent.target.innerText.replace("by ", "");
+			this.controller.stageController.pushScene('userInfo', {
+				login: user
+			},
+			this.userid, this.username, this.password);
+		} else if (event.originalEvent.target.className.toString().indexOf("floatleft") >= 0) {
+			this.loadPlaylist(event.item.mixInfo);
+			this.controller.stageController.pushScene('mixDetailsScene', event.item.mixInfo, event.item.set_id, this.userid, this.username, this.password, true);
+		} else if (event.item.type === "mix") {
 			this.controller.stageController.pushScene('mixDetailsScene', event.item.mixInfo, event.item.set_id, this.userid, this.username, this.password);
 		} else {
 			this.controller.stageController.pushScene('userInfo', event.item.userinfo, this.userid, this.username, this.password);
 		}
 	},
+	playMix: function(mixinfo) {
+		var onComplete = function(transport) {
+			if (transport.status == 200) {
+				this.showSpinner(false);
+				launch8tracksPlayer = function() {
+					var parameters = {
+						id: 'com.mycompany.8tracks',
+						params: {
+							launchScene: 'player',
+							mixInfo: mixinfo,
+							token: this.token,
+							response: transport.responseJSON,
+							cover: mixinfo.cover_urls.max200,
+							setid: this.setid, 
+							userid: this.userid,
+							username: this.username,
+							password: this.password, 
+							liked: mixinfo.liked_by_current_user
+						}
+					};
+					return new Mojo.Service.Request('palm://com.palm.applicationManager', {
+						method: 'open',
+						parameters: parameters
+					});
+				};
+				launch8tracksPlayer();
+				//this.controller.stageController.pushScene('player', mixinfo, this.token, transport.responseJSON, mixInfo.cover_urls.max200, this.setid, this.userid, this.username, this.password, mixinfo.liked_by_current_user);
+			}
+		};
+		var onFailure = function(transport) {
+			this.showSpinner(false);
+			this.popUp(transport.responseJSON.status, transport.responseJSON.notices[0]);
+		};
+		var url = "http://8tracks.com/sets/" + this.token + "/play.json?mix_id=" + mixinfo.id;
+		this.request(url, onComplete.bind(this), onFailure.bind(this));
+	},
+	loadPlaylist: function(mixInfo) {
+		var onComplete = function(transport) {
+			if (transport.status == 200) {
+				this.token = transport.responseJSON.play_token;
+				this.playMix(mixInfo);
+			} else {
+				this.popUp("Error", "Didn't Get 200 from json response");
+			}
+		};
+		var onFailure = function() {
+			this.showSpinner(false);
+			this.popUp("Oops", "failed to get play_token");
+		};
+		var url = "http://8tracks.com/sets/new.json";
+		this.request(url, onComplete.bind(this), onFailure.bind(this));
+	},
 	list1Listdelete: function(inSender, event) {
-		if(this.type !== "liked"){
+		if (this.type !== "liked") {
 			event.stop();
-			}else{
+		} else {
 			this.UnLike(event.item.mixInfo.id);
 		}
 	},
-		UnLike: function(mixid) {
+	UnLike: function(mixid) {
 		var onFailure = function(transport) {
 			this.popUp("Error", "Could not remove mix to your liked mix. Try to login again");
 		};
@@ -828,17 +936,17 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 			}
 		}
 	}.bind(this);
-	
-	var resetDefaultMix = function(command){
-		for (i = 0; i < this.appMenuModel.items[3].items.length; i++) {
-			if (this.appMenuModel.items[3].items[i].command == command) {
-				this.appMenuModel.items[3].items[i].iconPath = Mojo.appPath + "/images/check_mark.png";
+
+	var resetDefaultMix = function(command) {
+		for (i = 0; i < this.appMenuModel.items[2].items.length; i++) {
+			if (this.appMenuModel.items[2].items[i].command == command) {
+				this.appMenuModel.items[2].items[i].iconPath = Mojo.appPath + "/images/check_mark.png";
 			} else {
-				this.appMenuModel.items[3].items[i].iconPath = "none";
+				this.appMenuModel.items[2].items[i].iconPath = "none";
 			}
 		}
 	}.bind(this);
-	
+
 	if (event.type == Mojo.Event.command) {
 		switch (event.command) {
 		case 'fwd':
@@ -928,19 +1036,17 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 			break;
 		case 'login':
 			this.controller.stageController.pushScene('login');
-			//this.controller.showDialog({
-			//	template: 'dialogs/username-password-dialog',
-			//	assistant: new SampleDialogAssistant(this)
-			//});
 			break;
 		case 'logout':
-			this.cookie = new Mojo.Model.Cookie("credentials");
+			this.showBanner("You have logged out");
+			logout();
+			/*this.cookie = new Mojo.Model.Cookie("credentials");
 			this.cookie.put({
 				username: "",
 				password: "",
 				token: 0,
 				userid: -1
-			});
+			});*/
 			this.loggedin = false;
 			this.username = "";
 			this.password = "";
@@ -948,8 +1054,8 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 			this.mixCount = 4;
 			this.appMenuModel.items[0].command = "login";
 			this.appMenuModel.items[0].label = "Login";
-			this.appMenuModel.items[3].items[5].disabled = true;
-			this.appMenuModel.items[3].items[6].disabled = true;
+			//this.appMenuModel.items[3].items[5].disabled = true;
+		//	this.appMenuModel.items[3].items[6].disabled = true;
 			this.controller.modelChanged(this.appMenuModel, this);
 			cookie3 = new Mojo.Model.Cookie("defaultMix");
 			cookie3.put({
@@ -963,7 +1069,7 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 				parameters: {
 					id: "com.palm.app.email",
 					params: {
-						summary: "8tracks Support Request: v" + version,
+						summary: "8tracks Support Request: v" + Mojo.Controller.appInfo.version,
 						recipients: [{
 							type: "email",
 							role: 1,
@@ -1021,6 +1127,12 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 					command: 'followed',
 					disabled: !this.loggedin,
 					iconPath: this.type == 'followed' ? Mojo.appPath + "/images/check_mark.png" : "none"
+				},
+					{
+					label: 'Mix Feed',
+					command: 'mixfeed',
+					disabled: !this.loggedin,
+					iconPath: this.type == 'mixfeed' ? Mojo.appPath + "/images/check_mark.png" : "none"
 				}]
 			});
 			break;
@@ -1073,6 +1185,13 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 			});
 			resetDefaultMix(event.command);
 			break;
+		case 'defmix:mf':
+			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
+			this.cookie3.put({
+				defaultMix: event.command
+			});
+			resetDefaultMix(event.command);
+			break;
 		case 'defmix:fol':
 			this.cookie3 = new Mojo.Model.Cookie("defaultMix");
 			this.cookie3.put({
@@ -1089,23 +1208,3 @@ GridSceneAssistant.prototype.handleCommand = function(event) {
 		this.MixChange(1);
 	}
 };
-
-var SampleDialogAssistant = Class.create({
-	
-	initialize: function(sceneAssistant) {
-		this.sceneAssistant = sceneAssistant;
-		this.controller = sceneAssistant.controller;
-	},
-	
-	setup : function(widget) {
-		this.widget = widget;
-		this.controller.get('thanksButton').addEventListener(Mojo.Event.tap, this.handleThanks.bindAsEventListener(this));
-		this.controller.get('cancel_button').addEventListener(Mojo.Event.tap, this.handleThanks.bindAsEventListener(this));
-	},
-	
-	handleThanks: function() {
-		this.widget.mojo.close();
-	}
-	
-	
-});

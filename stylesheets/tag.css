@@ -10,9 +10,11 @@ span.trunc{
 }
 span{
 	font-size:11pt;  
-	border:solid;  
+	background: rgba(0,0,0,0.75);
+	color: white;
+	/*border:solid;  
 	border-color:white; 
-	background-color: #FFFFFF;  
+	background-color: #FFFFFF;*/  
 	-webkit-border-radius:5pt; 
 	float:center;
 	-webkit-transition: -webkit-transform .2s ease-out;

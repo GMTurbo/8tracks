@@ -3,7 +3,7 @@ opus.Gizmo({
 	dropTarget: true,
 	type: "Palm.Mojo.Panel",
 	t: 0,
-	h: 452,
+	h: "100%",
 	styles: {
 		zIndex: 2,
 		bgImage: "images/white-1.jpg"
@@ -28,7 +28,7 @@ opus.Gizmo({
 			name: "scroller4",
 			scrollPosition: {
 				left: 0,
-				top: 0
+				top: -12
 			},
 			type: "Palm.Mojo.Scroller",
 			l: 0,
@@ -104,41 +104,28 @@ opus.Gizmo({
 				{
 					name: "list1",
 					dropTarget: true,
-					items: [
-						{
-							item: 0,
-							label: "Zero",
-							value: "0"
-						},
-						{
-							item: 1,
-							label: "One",
-							value: "1"
-						},
-						{
-							item: 2,
-							label: "Two",
-							value: "2"
-						},
-						{
-							item: 3,
-							label: "Three",
-							value: "3"
-						}
-					],
+					items: [],
 					useSampleData: false,
 					title: undefined,
-					itemHtml: "\n<div class=\"palm-row grid-cell\"x-mojo-tap-highlight=\"immediate\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <set_id=\"set_id\">\n    <tag=\"tag\">\n    <timeSince=\"timeSince\">\n    <table style=\"padding:1pt;vertical-align:top;\">\n    <tr>\n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\"></th>\n      <th id=\"col2\">\n        <dt id=\"titleText\" style=\"font-family:Tahoma;font-size:13pt;\"> #{title} </dt>\n        <dt id=\"tagText\"> #{tag} </dt>\n        <dt id=\"time\"> #{timeSince} </dt>\n      </th>\n    </tr>\n    </table>\n  </div>  \n</link>\n</div>   \n",
+					itemHtml: "\n<div class=\"palm-row grid-cell\" x-mojo-tap-highlight=\"immediate\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\">\n  <div class=\"title\">\n    <mixInfo=\"mixInfo\">\n    <set_id=\"set_id\">\n    <tag=\"tag\">\n    <timeSince=\"timeSince\">\n    <table style=\"padding:1pt;vertical-align:top;\">\n    <tr>\n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\"></th>\n      <th id=\"col2\">\n        <dt id=\"titleText\" style=\"font-size:13pt\"> #{title} </dt>\n        <dt id=\"tagText\"> #{tag} </dt>\n        <dt id=\"time\"> #{timeSince} </dt>\n      </th>\n    </tr>\n    </table>\n  </div>  \n</link>\n</div>   ",
 					onlisttap: "list1Listtap",
 					swipeToDelete: false,
 					reorderable: false,
 					type: "Palm.Mojo.List",
 					l: 0,
-					t: 315,
-					h: 201,
-					styles: {
-						textColor: "black"
-					}
+					t: 0,
+					h: "50"
+				},
+				{
+					name: "label4",
+					kind: "title",
+					label: "",
+					type: "Palm.Mojo.Label",
+					l: 0,
+					t: 0,
+					h: "65",
+					hAlign: "center",
+					vAlign: "center"
 				}
 			]
 		}

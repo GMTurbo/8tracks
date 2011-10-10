@@ -1,11 +1,10 @@
+//var DashboardAssistant = function(musicPlayer) {
 
-var DashboardAssistant = function(musicPlayer) {
+function DashboardAssistant(musicPlayer) {
 	this.musicPlayer = musicPlayer;
 	this.toggle = false;
 	// if there isn't anything in the musicPlayer, don't open up the dashboard
-	if (this.musicPlayer === 0) {
-		Mojo.Controller.getAppController().closeStage('dashboard');
-	} else if(this.musicPlayer.audio() === 0){
+	if (this.musicPlayer.audio() === 0) {
 		Mojo.Controller.getAppController().closeStage('dashboard');
 	}
 
@@ -21,7 +20,7 @@ var DashboardAssistant = function(musicPlayer) {
 		this.musicPlayer.audio().removeEventListener('play', this.trackChange.bind(this), false);
 		this.musicPlayer.audio().removeEventListener('pause', this.trackPaused.bind(this), false);
 	};
-};
+}
 
 DashboardAssistant.prototype = {
 	setup: function() {
@@ -39,8 +38,8 @@ DashboardAssistant.prototype = {
 	},
 	cleanup: function() {
 		this.removeListeners();
-		//this.controller.get('dashboard-player').removeEventListener(Mojo.Event.tap, this.tapHandler.bindAsEventListener(this));
-	//	Ares.cleanupSceneAssistant(this);
+		this.controller.get('dashboard-player').removeEventListener(Mojo.Event.tap, this.tapHandler.bindAsEventListener(this));
+		//	Ares.cleanupSceneAssistant(this);
 	},
 
 	updateSong: function(arg) {
@@ -61,12 +60,12 @@ DashboardAssistant.prototype = {
 			this.controller.get('dashboard-player').update(renderedInfo);
 			myNewString = this.musicPlayer.photo().replace("original", "max200");
 			strarray = myNewString.split(".");
-			if (strarray[strarray.length - 1] === "jpeg" || strarray[strarray.length - 1] === "gif"){ 
-					myNewString = Mojo.appPath + "/images/8tracksDash2.png";
-				}
+			if (strarray[strarray.length - 1] === "jpeg" || strarray[strarray.length - 1] === "gif") {
+				myNewString = Mojo.appPath + "/images/8tracksDash2.png";
+			}
 			// the template render doesn't do this properly, doing it manually
 			this.controller.get('dashboard-player-art').style.background = "url(\"" + myNewString + "\") center center no-repeat";
-		}else{
+		} else {
 			Mojo.Log.info("Updating the dashboard");
 			data = {
 				title: arg,
@@ -82,7 +81,7 @@ DashboardAssistant.prototype = {
 			this.controller.get('dashboard-player').update(renderedInfo);
 			myNewString = this.musicPlayer.photo().replace("original", "max200");
 			strarray = myNewString.split(".");
-			if (strarray[strarray.length - 1] === "jpeg" || strarray[strarray.length - 1] === "gif"){ 
+			if (strarray[strarray.length - 1] === "jpeg" || strarray[strarray.length - 1] === "gif") {
 				myNewString = Mojo.appPath + "/images/8tracksDash2.png";
 			}
 			// the template render doesn't do this properly, doing it manually
@@ -90,12 +89,20 @@ DashboardAssistant.prototype = {
 			this.controller.get('dashboard-player-art').style.background = "url(\"" + myNewString + "\") center center no-repeat";
 		}
 	},
+	updateDashboard: function(data) {
+		if (data.type === 'audio') {
+			this.musicPlayer.update(data.audio, data.photo, data.trackinfo);
+			this.updateSong();
+		} else if (data.type === 'error') {
+			this.updateSong(data.text);
+		} else if(data.type==='likeState'){
+			this.musicPlayer.updateLike(data.state);
+		}
+	},
 	trackEnded: function(event) {
-		this.musicPlayer = DashPlayerInstance;
 		this.updateSong();
 	},
 	trackChange: function(event) {
-		this.musicPlayer = DashPlayerInstance;
 		this.updateSong();
 	},
 	trackPaused: function(event) {
@@ -132,21 +139,18 @@ DashboardAssistant.prototype = {
 			this.controller.get('playpause').removeClassName("pause");
 		}
 	},
-	
-	relaunch8tracks: function(){
+
+	relaunch8tracks: function() {
 		var parameters = {
-			id:'com.mycompany.8tracks',
+			id: 'com.mycompany.8tracks',
 			params: {
 				focus: true
 			}
 		};
-		return new Mojo.Service.Request(
-			'palm://com.palm.applicationManager',
-				{
-					method: 'open',
-					parameters: parameters
-				}
-		);
+		return new Mojo.Service.Request('palm://com.palm.applicationManager', {
+			method: 'open',
+			parameters: parameters
+		});
 	},
 	tapHandler: function(event) {
 		var id = event.target.id;
@@ -156,7 +160,7 @@ DashboardAssistant.prototype = {
 			this.musicPlayer.skipTrack();
 			this.updateSong("Retrieving Next...");
 		} else if (id === 'likeunlike') {
-			if(this.musicPlayer.loggedIn()){
+			if (this.musicPlayer.loggedIn()) {
 				this.toggleLike();
 			}
 		} else {
