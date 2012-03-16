@@ -564,17 +564,17 @@ GridSceneAssistant.prototype = {
 			};
 			url = "";
 			if (this.type === "liked") {
-				url = "http://8tracks.com/users/" + this.userid + "/mixes.json&"+API_KEY+"?view=liked";
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked";
 			} else if (this.type === "mine") {
-				url = "http://8tracks.com/users/" + this.userid + "/mixes.json&"+API_KEY;
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json";
 			} else if (this.type === "featured") {
-				url = "http://8tracks.com/mix_sets/featured.json&"+API_KEY+"?page=1";
+				url = "http://8tracks.com/mix_sets/featured.json?page=1";
 			} else if (this.type === "mixfeed") {
-				url = "http://8tracks.com/users/" + this.userid + "/mixes.json&"+API_KEY+"?view=mix_feed&per_page=12";
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&per_page=12";
 			} else {
-				url = "http://8tracks.com/mixes.json&"+API_KEY+"?page=1&sort=" + this.type;
+				url = "http://8tracks.com/mixes.json?page=1&sort=" + this.type;
 			}
-			this.request(url, onComplete.bind(this), onFailure.bind(this));
+			this.request(sendURL(url,true), onComplete.bind(this), onFailure.bind(this));
 		} else if (reload && this.type === "followed") {
 			onComplete = function(transport) {
 				if (transport.status === 200) {
@@ -846,19 +846,19 @@ GridSceneAssistant.prototype = {
 		var onComplete = function(transport) {
 			if (transport.status == 200) {
 				this.showSpinner(false);
-				launch8tracksPlayer = function() {
+				launch8tracksPlayer = function(self) {
 					var parameters = {
 						id: 'com.mycompany.8tracks',
 						params: {
 							launchScene: 'player',
 							mixInfo: mixinfo,
-							token: this.token,
+							token: self.token,
 							response: transport.responseJSON,
 							cover: mixinfo.cover_urls.max200,
-							setid: this.setid, 
-							userid: this.userid,
-							username: this.username,
-							password: this.password, 
+							setid: self.setid, 
+							userid: self.userid,
+							username: self.username,
+							password: self.password, 
 							liked: mixinfo.liked_by_current_user
 						}
 					};
@@ -867,7 +867,7 @@ GridSceneAssistant.prototype = {
 						parameters: parameters
 					});
 				};
-				launch8tracksPlayer();
+				launch8tracksPlayer(this);
 				//this.controller.stageController.pushScene('player', mixinfo, this.token, transport.responseJSON, mixInfo.cover_urls.max200, this.setid, this.userid, this.username, this.password, mixinfo.liked_by_current_user);
 			}
 		};
@@ -892,7 +892,7 @@ GridSceneAssistant.prototype = {
 			this.popUp("Oops", "failed to get play_token");
 		};
 		var url = "http://8tracks.com/sets/new.json";
-		this.request(url, onComplete.bind(this), onFailure.bind(this));
+		this.request(sendURL(url,true), onComplete.bind(this), onFailure.bind(this));
 	},
 	list1Listdelete: function(inSender, event) {
 		if (this.type !== "liked") {

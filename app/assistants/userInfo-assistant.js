@@ -298,6 +298,7 @@ UserInfoAssistant.prototype = {
 			this.popUp("Oops", "Error retrieving user data!");
 		};
 		url = "http://8tracks.com/users/" + this.userInfo.login + ".json";
+		url = sendURL(url,true);
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	request: function(url, onComplete, onFailure) {
@@ -330,6 +331,7 @@ UserInfoAssistant.prototype = {
 			this.popUp("Oops", "failed to get play_token");
 		};
 		var url = "http://8tracks.com/sets/new.json";
+		url = sendURL(url,true);
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	playMix: function() {
@@ -369,7 +371,8 @@ UserInfoAssistant.prototype = {
 	},
 	followUser: function() {
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		var url = "http://8tracks.com/users/" + this.userInfo.id + "/follow.json&"+API_KEY;
+		var url = "http://8tracks.com/users/" + this.userInfo.id + "/follow.json";
+		url = sendURL(url,true);
 		var onFailure = function(transport) {
 			this.popUp("Error", "Could not follow user. Try to login again");
 		};
@@ -382,7 +385,8 @@ UserInfoAssistant.prototype = {
 	},
 	unFollowUser: function() {
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		var url = "http://8tracks.com/users/" + this.userInfo.id + "/unfollow.json&"+API_KEY;
+		var url = "http://8tracks.com/users/" + this.userInfo.id + "/unfollow.json";
+		url = sendURL(url,true);
 		var onFailure = function(transport) {
 			this.popUp("Error", "Could not unfollow user. Try to login again");
 		};

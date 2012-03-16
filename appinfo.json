@@ -1,6 +1,6 @@
 {
 	"id": "com.mycompany.8tracks",
-	"version": "1.5.5",
+	"version": "1.5.6",
 	"vendor": "GMTurbo",
 	"type": "web",
 	"main": "index.html",

@@ -300,7 +300,7 @@ MixDetailsSceneAssistant.prototype = {
 			this.popUp(transport.responseJSON.status, transport.responseJSON.notices[0]);
 		};
 		var url = "http://8tracks.com/sets/" + this.token + "/play.json?mix_id=" + this.mixInfo.id;
-		this.request(url, onComplete.bind(this), onFailure.bind(this));
+		this.request(sendURL(url), onComplete.bind(this), onFailure.bind(this));
 	},
 	loadPlaylist: function() {
 		var onComplete = function(transport) {
@@ -316,7 +316,7 @@ MixDetailsSceneAssistant.prototype = {
 			this.popUp("Oops", "failed to get play_token");
 		};
 		var url = "http://8tracks.com/sets/new.json";
-		this.request(url, onComplete.bind(this), onFailure.bind(this));
+		this.request(sendURL(url,true), onComplete.bind(this), onFailure.bind(this));
 	},
 	Like: function() {
 		var onFailure = function(transport) {
@@ -325,6 +325,7 @@ MixDetailsSceneAssistant.prototype = {
 
 		var postdata = "login=" + this.username + "&password=" + this.password;
 		var url = "http://8tracks.com/mixes/" + this.mixInfo.id + "/like.json";
+		url = sendURL(url,true);
 		var myAjax = new Ajax.Request(url, {
 			method: "post",
 			requestHeader: postdata,
@@ -353,6 +354,7 @@ MixDetailsSceneAssistant.prototype = {
 		};
 		var postdata = "login=" + this.username + "&password=" + this.password;
 		url = "http://8tracks.com/mixes/" + this.mixInfo.id + "/unlike.json";
+		url = sendURL(url,true);
 		var myAjax = new Ajax.Request(url, {
 			method: "post",
 			requestHeader: postdata,

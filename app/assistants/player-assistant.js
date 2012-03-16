@@ -619,7 +619,7 @@ PlayerAssistant.prototype = {
 			this.showSpinner(false);
 		};
 
-		var url = "http://8tracks.com/mixes/" + this.mixID.id + "/reviews.json?per_page=50&" + API_KEY;
+		var url = "http://8tracks.com/mixes/" + this.mixID.id + "/reviews.json?per_page=20&" + API_KEY;
 		request(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	requestNext: function(url, onComplete, onFailure) {
@@ -1051,7 +1051,8 @@ PlayerAssistant.prototype = {
 		};
 		var postdata = "login=" + this.username + "&password=" + this.password;
 		if (!state) {
-			url = "http://8tracks.com/tracks/" + song.id + "/fav.json&"+API_KEY;
+			url = "http://8tracks.com/tracks/" + song.id + "/fav.json";
+			url = sendURL(url,true);
 			myAjax = new Ajax.Request(url, {
 				method: "post",
 				requestHeader: postdata,
@@ -1060,6 +1061,7 @@ PlayerAssistant.prototype = {
 			});
 		} else {
 			url = "http://8tracks.com/tracks/" + song.id + "/unfav.json";
+			url = sendURL(url,true);
 			myAjax = new Ajax.Request(url, {
 				method: "post",
 				requestHeader: postdata,
@@ -1085,7 +1087,8 @@ PlayerAssistant.prototype = {
 			this.showBanner("Could not add mix to your liked mix. Try to login again");
 		};
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		var url = "http://8tracks.com/mixes/" + this.mixID.id + "/like.json&"+API_KEY;
+		var url = "http://8tracks.com/mixes/" + this.mixID.id + "/like.json";
+		url = sendURL(url,true);
 		var myAjax = new Ajax.Request(url, {
 			method: "post",
 			requestHeader: postdata,
@@ -1109,7 +1112,8 @@ PlayerAssistant.prototype = {
 			this.showBanner("Could not remove mix to your liked mix. Try to login again");
 		};
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		url = "http://8tracks.com/mixes/" + this.mixID.id + "/unlike.json&"+API_KEY;
+		url = "http://8tracks.com/mixes/" + this.mixID.id + "/unlike.json";
+		url = sendURL(url,true);
 		var myAjax = new Ajax.Request(url, {
 			method: "post",
 			requestHeader: postdata,
