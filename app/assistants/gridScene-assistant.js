@@ -436,7 +436,7 @@ GridSceneAssistant.prototype = {
 			var onFailure = function(transport) {
 				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 			};
-			url = "http://8tracks.com/users/" + this.userid + "/follows_users.json";
+			url = "http://8tracks.com/users/" + this.userid + "/follows_users.json&" + API_KEY;
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		}
 
@@ -564,15 +564,15 @@ GridSceneAssistant.prototype = {
 			};
 			url = "";
 			if (this.type === "liked") {
-				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked";
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json&"+API_KEY+"?view=liked";
 			} else if (this.type === "mine") {
-				url = "http://8tracks.com/users/" + this.userid + "/mixes.json";
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json&"+API_KEY;
 			} else if (this.type === "featured") {
-				url = "http://8tracks.com/mix_sets/featured.json?page=1";
+				url = "http://8tracks.com/mix_sets/featured.json&"+API_KEY+"?page=1";
 			} else if (this.type === "mixfeed") {
-				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&per_page=12";
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json&"+API_KEY+"?view=mix_feed&per_page=12";
 			} else {
-				url = "http://8tracks.com/mixes.json?page=1&sort=" + this.type;
+				url = "http://8tracks.com/mixes.json&"+API_KEY+"?page=1&sort=" + this.type;
 			}
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		} else if (reload && this.type === "followed") {
@@ -594,7 +594,7 @@ GridSceneAssistant.prototype = {
 			onFailure = function(transport) {
 				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 			};
-			url = "http://8tracks.com/users/" + this.userid + "/follows_users.json";
+			url = "http://8tracks.com/users/" + this.userid + "/follows_users.json&"+API_KEY;
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		}
 	},
@@ -716,15 +716,15 @@ GridSceneAssistant.prototype = {
 			};
 			url = "";
 			if (this.type === "liked") {
-				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked";
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked&"+ API_KEY;
 			} else if (this.type === "mine") {
 				url = "http://8tracks.com/users/" + this.userid + "/mixes.json";
 			} else if (this.type === "featured") {
-				url = "http://8tracks.com/mix_sets/featured.json?page=1";
+				url = "http://8tracks.com/mix_sets/featured.json?page=1&"+API_KEY;
 			} else if (this.type === "mixfeed") {
-				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&per_page=12";
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&per_page=12&" + API_KEY;
 			}	else {
-				url = "http://8tracks.com/mixes.json?page=1&sort=" + this.type;
+				url = "http://8tracks.com/mixes.json?page=1&sort=" + this.type + "&"+ API_KEY;
 			}
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		} else if (reload && this.type === "followed") {
@@ -746,7 +746,7 @@ GridSceneAssistant.prototype = {
 			onFailure = function(transport) {
 				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 			};
-			url = "http://8tracks.com/users/" + this.userid + "/follows_users.json";
+			url = "http://8tracks.com/users/" + this.userid + "/follows_users.json&"+API_KEY;
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		}
 	},
@@ -784,13 +784,13 @@ GridSceneAssistant.prototype = {
 				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 			};
 			if (this.type === "liked") {
-				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked&page=" + this.currentpage;
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked&page=" + this.currentpage + "&" + API_KEY;
 			} else if (this.type === "featured") {
-				url = "http://8tracks.com/mix_sets/featured.json?per_page=10&page=" + this.currentpage;
+				url = "http://8tracks.com/mix_sets/featured.json?per_page=10&page=" + this.currentpage+ "&" + API_KEY;
 			} else if (this.type === "mixfeed") {
-				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&page=" + this.currentpage + "&per_page=12";
+				url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&page=" + this.currentpage + "&per_page=12&" + API_KEY;
 			}	else {
-				url = "http://8tracks.com/mixes.json?page=" + this.currentpage + "&sort=" + this.type;
+				url = "http://8tracks.com/mixes.json?page=" + this.currentpage + "&sort=" + this.type+ "&" + API_KEY;
 			}
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		}
@@ -816,13 +816,13 @@ GridSceneAssistant.prototype = {
 			this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 		};
 		if (this.type === "liked") {
-			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked&page=" + this.currentpage;
+			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked&page=" + this.currentpage+ "&" + API_KEY;
 		} else if (this.type === "featured") {
-			url = "http://8tracks.com/mix_sets/featured.json?page=" + this.currentpage;
+			url = "http://8tracks.com/mix_sets/featured.json?page=" + this.currentpage+ "&" + API_KEY;
 		} else if (this.type === "mixfeed") {
-			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&page=" + this.currentpage + "&per_page=12";
+			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&page=" + this.currentpage + "&per_page=12&" + API_KEY;
 		} else {
-			url = "http://8tracks.com/mixes.json?page=" + this.currentpage + "&sort=" + this.type;
+			url = "http://8tracks.com/mixes.json?page=" + this.currentpage + "&sort=" + this.type+ "&" + API_KEY;
 		}
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
@@ -875,7 +875,7 @@ GridSceneAssistant.prototype = {
 			this.showSpinner(false);
 			this.popUp(transport.responseJSON.status, transport.responseJSON.notices[0]);
 		};
-		var url = "http://8tracks.com/sets/" + this.token + "/play.json?mix_id=" + mixinfo.id;
+		var url = "http://8tracks.com/sets/" + this.token + "/play.json?mix_id=" + mixinfo.id + "&" + API_KEY;
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	loadPlaylist: function(mixInfo) {
@@ -906,7 +906,7 @@ GridSceneAssistant.prototype = {
 			this.popUp("Error", "Could not remove mix to your liked mix. Try to login again");
 		};
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		url = "http://8tracks.com/mixes/" + mixid + "/unlike.json";
+		url = "http://8tracks.com/mixes/" + mixid + "/unlike.json&"+API_KEY;
 		var myAjax = new Ajax.Request(url, {
 			method: "post",
 			requestHeader: postdata,

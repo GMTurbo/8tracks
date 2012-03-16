@@ -448,7 +448,7 @@ PlayerAssistant.prototype = {
 			this.controller.get("multilineTextField").mojo.setValue("");*/
 			};
 			var postdata = "login=" + this.username + "&password=" + this.password;
-			var url = "http://8tracks.com/reviews.xml";
+			var url = "http://8tracks.com/reviews.xml&"+API_KEY;
 			var postbody = "review[mix_id]=" + this.mixID.id + "&review[body]=" + message.replace(/ /g, "%20");
 			post(url, postdata, onComplete.bind(this), onFailure.bind(this), postbody);
 		} else {
@@ -619,7 +619,7 @@ PlayerAssistant.prototype = {
 			this.showSpinner(false);
 		};
 
-		var url = "http://8tracks.com/mixes/" + this.mixID.id + "/reviews.json?per_page=50";
+		var url = "http://8tracks.com/mixes/" + this.mixID.id + "/reviews.json?per_page=50&" + API_KEY;
 		request(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	requestNext: function(url, onComplete, onFailure) {
@@ -699,14 +699,14 @@ PlayerAssistant.prototype = {
 					this.showSpinner(false);
 					this.popUp("", "");
 				};
-				var url = "http://8tracks.com/sets/" + this.token + "/play.json?mix_id=" + this.mixID.id;
+				var url = "http://8tracks.com/sets/" + this.token + "/play.json?mix_id=" + this.mixID.id + "&" + API_KEY;
 				this.requestNext(url, onComplete.bind(this), onFailure.bind(this));
 			}
 		};
 		var onFailure = function(transport) {
 			this.controller.stageController.popScene(true);
 		};
-		url = "http://8tracks.com/sets/" + this.token + "/play_next_mix.json?mix_id=" + this.mixID.id;
+		url = "http://8tracks.com/sets/" + this.token + "/play_next_mix.json?mix_id=" + this.mixID.id+ "&" + API_KEY;
 		this.requestNext(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	skipTrack: function() {
@@ -756,7 +756,7 @@ PlayerAssistant.prototype = {
 			this.Popup("Oops", "No more skips allowed...");
 			this.sendMessageToDash("No more skips allowed");
 		};
-		var url = "http://8tracks.com/sets/" + this.token + "/skip.json?mix_id=" + this.mixID.id;
+		var url = "http://8tracks.com/sets/" + this.token + "/skip.json?mix_id=" + this.mixID.id+ "&" + API_KEY;
 		this.requestNext(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	askForNMPref: function() {
@@ -855,7 +855,7 @@ PlayerAssistant.prototype = {
 		var onFailure = function(transport) {
 			this.Popup("Oops", "Error getting next track...");
 		};
-		var url = "http://8tracks.com/sets/" + this.token + "/next.json?mix_id=" + this.mixID.id;
+		var url = "http://8tracks.com/sets/" + this.token + "/next.json?mix_id=" + this.mixID.id+ "&" + API_KEY;
 		this.requestNext(url, onComplete.bind(this), onFailure.bind(this));
 	},
 
@@ -1051,7 +1051,7 @@ PlayerAssistant.prototype = {
 		};
 		var postdata = "login=" + this.username + "&password=" + this.password;
 		if (!state) {
-			url = "http://8tracks.com/tracks/" + song.id + "/fav.json";
+			url = "http://8tracks.com/tracks/" + song.id + "/fav.json&"+API_KEY;
 			myAjax = new Ajax.Request(url, {
 				method: "post",
 				requestHeader: postdata,
@@ -1085,7 +1085,7 @@ PlayerAssistant.prototype = {
 			this.showBanner("Could not add mix to your liked mix. Try to login again");
 		};
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		var url = "http://8tracks.com/mixes/" + this.mixID.id + "/like.json";
+		var url = "http://8tracks.com/mixes/" + this.mixID.id + "/like.json&"+API_KEY;
 		var myAjax = new Ajax.Request(url, {
 			method: "post",
 			requestHeader: postdata,
@@ -1109,7 +1109,7 @@ PlayerAssistant.prototype = {
 			this.showBanner("Could not remove mix to your liked mix. Try to login again");
 		};
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		url = "http://8tracks.com/mixes/" + this.mixID.id + "/unlike.json";
+		url = "http://8tracks.com/mixes/" + this.mixID.id + "/unlike.json&"+API_KEY;
 		var myAjax = new Ajax.Request(url, {
 			method: "post",
 			requestHeader: postdata,

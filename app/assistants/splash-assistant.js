@@ -74,7 +74,7 @@ SplashAssistant.prototype = {
 					this.userid = transport.responseJSON.user.id;
 					this.begin();
 				};
-				url = "http://8tracks.com/users/" + this.username + ".json";
+				url = "http://8tracks.com/users/" + this.username + ".json&" + API_KEY;
 				var failure = function(transport) {
 					this.popUp("Login Error", "Check Credentials");
 					this.begin();
@@ -85,7 +85,7 @@ SplashAssistant.prototype = {
 		var onFailure = function(transport) {
 			this.checkConnection();
 		};
-		url = "http://8tracks.com/sessions.json";
+		url = "http://8tracks.com/sessions.json&" + API_KEY;
 		var postdata = "login=" + this.username + "&password=" + this.password;
 		var myAjax = new Ajax.Request(url, {
 			method: "post",
@@ -154,15 +154,15 @@ SplashAssistant.prototype = {
 		}
 		var url = "";
 		if (this.type === "liked") {
-			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked";
+			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=liked&" + API_KEY;
 		} else if (this.type === "mine") {
-			url = "http://8tracks.com/users/" + this.userid + "/mixes.json";
+			url = "http://8tracks.com/users/" + this.userid + "/mixes.json&"+API_KEY;
 		} else if (this.type === "featured") {
-			url = "http://8tracks.com/mix_sets/featured.json?per_page=10&page=1";
+			url = "http://8tracks.com/mix_sets/featured.json?per_page=10&page=1&"+ API_KEY;
 		} else if (this.type === "mixfeed") {
-			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&per_page=12";
+			url = "http://8tracks.com/users/" + this.userid + "/mixes.json?view=mix_feed&per_page=12&"+ API_KEY;
 		} else {
-			url = "http://8tracks.com/mixes.json?page=1&sort="+ this.type;
+			url = "http://8tracks.com/mixes.json?page=1&sort="+ this.type+ "&" + API_KEY;
 		}
 
 		this.requestDemo(url, onComplete.bind(this), onFailure.bind(this));

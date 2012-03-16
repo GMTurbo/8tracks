@@ -74,14 +74,14 @@ opus.Gizmo({
 					],
 					useSampleData: false,
 					title: undefined,
-					itemHtml: "\n<div class=\"palm-row grid-cell\" x-mojo-tap-highlight=\"delayed\"> \n<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/list.css\"> \n  <div class=\"title\"> \n    <mixInfo=\"mixInfo\"> \n    <set_id=\"set_id\"> \n    <tag=\"tag\"> \n    <timeSince=\"timeSince\"> \n    <table style=\"padding:1pt;vertical-align:top;\"> \n    <tr> \n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\" x-mojo-tap-highlight=\"delayed\"></th> \n      <th id=\"col2\"> \n        <dt id=\"titleText\" style=\"font-family:Tahoma;font-size:13pt;\"> #{title} </dt> \n        <dt id=\"tagText\"> #{tag} </dt> \n        <dt id=\"time\"> #{timeSince} by\n        <span id=\"creator\" x-mojo-tap-highlight=\"delayed\">#{creator} </span> \n        </dt> \n      </th> \n    </tr> \n    </table> \n  </div>  \n</link> \n</div>  ",
+					itemHtml: "\n<div class=\"palm-row grid-cell\" x-mojo-tap-highlight=\"delayed\"> \n  <div class=\"title\"> \n    <mixInfo=\"mixInfo\"> \n    <set_id=\"set_id\"> \n    <tag=\"tag\"> \n    <timeSince=\"timeSince\"> \n    <table style=\"padding:1pt;vertical-align:top;\"> \n    <tr> \n      <th id=\"col1\"><img src=\"#{leftImage}\" class=\"floatleft\" x-mojo-tap-highlight=\"delayed\"></th> \n      <th id=\"col2\"> \n        <dt id=\"titleText\" style=\"font-family:Tahoma;font-size:13pt;\"> #{title} </dt> \n        <dt id=\"tagText\"> #{tag} </dt> \n        <dt id=\"time\"> #{timeSince} by\n        <span id=\"creator\" x-mojo-tap-highlight=\"delayed\">#{creator} </span> \n        </dt> \n      </th> \n    </tr> \n    </table> \n  </div>  \n</div>  ",
 					onlisttap: "list1Listtap",
 					onlistdelete: "list1Listdelete",
 					reorderable: false,
 					type: "Palm.Mojo.List",
 					l: 0,
 					t: 0,
-					h: 252
+					h: 245
 				},
 				{
 					name: "label2",

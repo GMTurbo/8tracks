@@ -191,7 +191,7 @@ UserInfoAssistant.prototype = {
 			}
 		};
 		var onFailure = function(transport) {};
-		this.url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?per_page=12";
+		this.url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?per_page=12&" + API_KEY;
 		this.request(this.url, onComplete.bind(this), onFailure.bind(this));
 	},
 	listLikedMixes: function() {
@@ -208,7 +208,7 @@ UserInfoAssistant.prototype = {
 			}
 		};
 		var onFailure = function(transport) {};
-		this.url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?view=liked&per_page=12";
+		this.url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?view=liked&per_page=12&" + API_KEY;
 		this.request(this.url, onComplete.bind(this), onFailure.bind(this));
 	},
 	listMixFeedMixes: function() {
@@ -225,7 +225,7 @@ UserInfoAssistant.prototype = {
 			}
 		};
 		var onFailure = function(transport) {};
-		this.url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?view=mixfeed&per_page=12";
+		this.url = "http://8tracks.com/users/" + this.userInfo.login + "/mixes.json?view=mixfeed&per_page=12&" + API_KEY;
 		this.request(this.url, onComplete.bind(this), onFailure.bind(this));
 	},
 	itemsCallback:function(listWidget, offset, count){
@@ -254,7 +254,7 @@ UserInfoAssistant.prototype = {
 			this.showSpinner(false);
 			this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 		};
-		this.request(this.url + "&page=" + this.currentpage, onComplete.bind(this), onFailure.bind(this));
+		this.request(this.url + "&page=" + this.currentpage + "&" + API_KEY, onComplete.bind(this), onFailure.bind(this));
 	},
 	getPreviousPage: function() {
 		if (this.currentpage - 1 > 0) {
@@ -272,7 +272,7 @@ UserInfoAssistant.prototype = {
 				this.showSpinner(false);
 				this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 			};
-			this.request(this.url + "&page=" + this.currentpage, onComplete.bind(this), onFailure.bind(this));
+			this.request(this.url + "&page=" + this.currentpage + "&" + API_KEY, onComplete.bind(this), onFailure.bind(this));
 		}
 	},
 	getUserInfo: function() {
@@ -364,12 +364,12 @@ UserInfoAssistant.prototype = {
 		var onFailure = function(transport) {
 			this.popUp("", "");
 		};
-		var url = "http://8tracks.com/sets/" + this.token + "/play.json?mix_id=" + this.mixInfo.id;
+		var url = "http://8tracks.com/sets/" + this.token + "/play.json?mix_id=" + this.mixInfo.id + "&" + API_KEY;
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
 	followUser: function() {
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		var url = "http://8tracks.com/users/" + this.userInfo.id + "/follow.json";
+		var url = "http://8tracks.com/users/" + this.userInfo.id + "/follow.json&"+API_KEY;
 		var onFailure = function(transport) {
 			this.popUp("Error", "Could not follow user. Try to login again");
 		};
@@ -382,7 +382,7 @@ UserInfoAssistant.prototype = {
 	},
 	unFollowUser: function() {
 		var postdata = "login=" + this.username + "&password=" + this.password;
-		var url = "http://8tracks.com/users/" + this.userInfo.id + "/unfollow.json";
+		var url = "http://8tracks.com/users/" + this.userInfo.id + "/unfollow.json&"+API_KEY;
 		var onFailure = function(transport) {
 			this.popUp("Error", "Could not unfollow user. Try to login again");
 		};

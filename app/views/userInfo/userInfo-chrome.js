@@ -28,7 +28,7 @@ opus.Gizmo({
 			name: "scroller4",
 			scrollPosition: {
 				left: 0,
-				top: -12
+				top: 0
 			},
 			type: "Palm.Mojo.Scroller",
 			l: 0,
@@ -114,7 +114,7 @@ opus.Gizmo({
 					type: "Palm.Mojo.List",
 					l: 0,
 					t: 0,
-					h: "50"
+					h: 100
 				},
 				{
 					name: "label4",

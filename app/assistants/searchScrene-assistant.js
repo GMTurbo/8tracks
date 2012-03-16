@@ -173,9 +173,9 @@ SearchScreneAssistant.prototype = {
 		this.character = this.controller.get('textField3').mojo.getValue();
 		var url = "";
 		if (this.searchCriteria !== "user") {
-			url = "http://8tracks.com/mixes.json?" + this.searchCriteria + "=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage;
+			url = "http://8tracks.com/mixes.json?" + this.searchCriteria + "=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage + "&" + API_KEY;
 		} else {
-			url = "http://8tracks.com/users/" + this.controller.get('textField3').mojo.getValue().toString().toLowerCase() + "/mixes.json?page=" + this.currentpage;
+			url = "http://8tracks.com/users/" + this.controller.get('textField3').mojo.getValue().toString().toLowerCase() + "/mixes.json?page=" + this.currentpage+ "&" + API_KEY;
 		}
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
@@ -206,9 +206,9 @@ SearchScreneAssistant.prototype = {
 			this.popUp("Oops!", "Couldn't retreive page " + this.currentpage);
 		};
 		if (this.searchCriteria !== "user") {
-			url = "http://8tracks.com/mixes.json?" + this.searchCriteria + "=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage;
+			url = "http://8tracks.com/mixes.json?" + this.searchCriteria + "=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage+ "&" + API_KEY;
 		} else {
-			url = "http://8tracks.com/users/" + this.controller.get('textField3').mojo.getValue() + "/mixes.xml?view=mix_feed&page=" + this.currentpage;
+			url = "http://8tracks.com/users/" + this.controller.get('textField3').mojo.getValue() + "/mixes.json?view=mix_feed&page=" + this.currentpage+ "&" + API_KEY;
 		}
 		this.request(url, onComplete.bind(this), onFailure.bind(this));
 	},
@@ -231,9 +231,9 @@ SearchScreneAssistant.prototype = {
 			};
 			var url = "";
 			if (this.searchCriteria !== "user") {
-				url = "http://8tracks.com/mixes.json?" + this.searchCriteria + "=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage;
+				url = "http://8tracks.com/mixes.json?" + this.searchCriteria + "=" + this.controller.get('textField3').mojo.getValue() + "&page=" + this.currentpage+ "&" + API_KEY;
 			} else {
-				url = "http://8tracks.com/users/" + this.controller.get('textField3').mojo.getValue() + "/mixes.xml?view=mix_feed&page=" + this.currentpage;
+				url = "http://8tracks.com/users/" + this.controller.get('textField3').mojo.getValue() + "/mixes.json?view=mix_feed&page=" + this.currentpage+ "&" + API_KEY;
 			}
 			this.request(url, onComplete.bind(this), onFailure.bind(this));
 		}
